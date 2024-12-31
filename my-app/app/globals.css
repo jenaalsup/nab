@@ -9,13 +9,32 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ededed;
+    --foreground: #0a0a0a;
   }
 }
 
+
+/* globals.css */
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-dm-sans), sans-serif;  /* DM Sans for the body */
+}
+
+h1, h2, h3 {
+  font-family: var(--font-dm-mono), monospace;  /* DM Mono for headings */
+}
+
+/* Example: Apply specific font weights for different sections */
+h1 {
+  font-weight: 700;  /* Bold weight for headings */
+}
+
+h2 {
+  font-weight: 600;  /* Semibold for sub-headings */
+}
+
+p {
+  font-weight: 400;  /* Regular weight for paragraphs */
 }

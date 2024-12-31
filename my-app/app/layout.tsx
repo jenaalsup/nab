@@ -1,16 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans, DM_Mono } from "next/font/google";
 import { FirebaseProvider } from '../contexts/FirebaseContext';
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Importing DM Sans and DM Mono with specified weights
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",   // Custom variable name for DM Sans
+  subsets: ["latin"],           // Subset of the font
+  weight: ["300", "400", "500", "600", "700"],  // Specific font weights for DM Sans
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const dmMono = DM_Mono({
+  variable: "--font-dm-mono",   // Custom variable name for DM Mono
+  subsets: ["latin"],           // Subset of the font
+  weight: ["300", "400", "500"], // Specific font weights for DM Mono
 });
 
 export const metadata: Metadata = {
@@ -20,15 +23,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <FirebaseProvider>
-          {children}
-        </FirebaseProvider>
+    <html lang="en" className={`${dmSans.variable} ${dmMono.variable}`}>
+      <body>
+        <FirebaseProvider>{children}</FirebaseProvider>
       </body>
     </html>
   );
