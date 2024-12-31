@@ -10,14 +10,21 @@ import {
   onAuthStateChanged,
   User
 } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+
+
 
 export default function Auth() {
+  const router = useRouter();
+
   const { auth } = useFirebase();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -53,6 +60,7 @@ export default function Auth() {
       await signInWithEmailAndPassword(auth, email, password);
       setStatus('Successfully signed in!');
       setError('');
+      router.push('/products'); // Redirect to products page after successful sign in
     } catch (err: any) {
       setError(err.message);
       setStatus('');
