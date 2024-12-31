@@ -2,6 +2,7 @@
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 export default function Navbar() {
     const router = useRouter();
   const { currentUser, signOutUser, loading } = useAuth();
@@ -17,7 +18,8 @@ export default function Navbar() {
         <h1 className="text-xl font-bold">nab</h1>
 
           <div className="flex items-center gap-4">
-            <span>{currentUser?.email}</span>
+
+            <Link href="/profile">{currentUser?.email}</Link>
             <button
               onClick={handleSignOut}
               className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
