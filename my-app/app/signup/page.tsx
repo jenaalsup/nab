@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { updateProfile } from 'firebase/auth';
 
 export default function SignUpPage() {
   const { signUp, error, loading } = useAuth();
@@ -16,30 +17,32 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!name || !email || !password || !confirmPassword) {
       setFormError('All fields are required.');
       return;
     }
-
+  
     if (password !== confirmPassword) {
       setFormError('Passwords do not match.');
       return;
     }
-
+  
     setFormError('');
     try {
       const user = await signUp(email, password);
-            // Update the user profile with the name (Firebase)
-            await user.updateProfile({
-              displayName: name,
-            });
+      
+      // Update profile using updateProfile from Firebase Auth
+      await updateProfile(user, {
+        displayName: name
+      });
+  
       router.push('/products'); // Redirect after successful sign up
     } catch (err) {
-      console.error(err); // Handled by AuthContext error
+      console.error(err);
     }
   };
-
+  
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 bg-white rounded shadow-md">
