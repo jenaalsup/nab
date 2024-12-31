@@ -4,10 +4,6 @@ import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { updateProfile } from 'firebase/auth';
-<<<<<<< HEAD
-
-=======
->>>>>>> 95f3670f73f33ea79b9214efafee18e0efd597c4
 
 export default function SignUpPage() {
   const { signUp, error, loading } = useAuth();
