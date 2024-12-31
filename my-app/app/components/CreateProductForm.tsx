@@ -5,7 +5,6 @@ import { useFirebase } from '../../contexts/FirebaseContext';
 import { collection, addDoc } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import type { Product } from '../../types/product';
 
 export default function CreateProductForm() {
   const { db, auth } = useFirebase();
@@ -14,8 +13,9 @@ export default function CreateProductForm() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
   const [status, setStatus] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -38,18 +38,35 @@ export default function CreateProductForm() {
     );
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!title || !description || !price || !imageUrl) {
-      setStatus('Please fill in all fields');
-      return;
-    }
-
-    setStatus('Creating listing...');
-
+    
+    const formData = new FormData();
+    formData.append('file', imageFile!);
+    formData.append('upload_preset', 'listings');
+  
     try {
-      const productData: Omit<Product, 'id'> = {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dxzkav00b/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+      const data = await response.json();
+      const imageUrl = data.secure_url;
+  
+      // Then save product with imageUrl to Firestore
+      const productData = {
         title,
         description,
         price: parseFloat(price),
@@ -59,27 +76,10 @@ export default function CreateProductForm() {
         createdAt: Date.now()
       };
   
-      console.log('About to add doc:', productData);
-
-      if (!db) {
-        console.log('firestore not initialized');
-        //throw new Error('Firestore instance is not initialized');
-      }
-      else {
-        console.log('firestore initialized');
-      }
-
-      const docRef = await addDoc(collection(db, 'products'), productData);
-      console.log('Document written with ID: ', docRef.id);
-      setStatus('Product created successfully!');
-      
-      // Add a small delay before redirect
-      setTimeout(() => {
-        router.push('/');
-      }, 1500);
-    } catch (error: any) {
-      console.error('Error creating product:', error);
-      setStatus(`Error: ${error.message}`);
+      await addDoc(collection(db, 'products'), productData);
+      router.push('/products');
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 
@@ -124,15 +124,21 @@ export default function CreateProductForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Image URL</label>
+          <label className="block text-sm font-medium mb-2">Product Image</label>
           <input
-            type="url"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://example.com/image.jpg"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
             className="w-full p-3 border rounded-lg text-black"
             required
           />
+          {imagePreview && (
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="mt-2 w-full h-48 object-cover rounded-lg"
+            />
+          )}
         </div>
 
         <button

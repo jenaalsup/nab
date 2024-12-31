@@ -9,8 +9,7 @@ export default function Home() {
 
         <h1 className="text-4xl font-bold">PRODUCT LIST </h1>
         <p>nab the best deals from your block</p>
-
-        {/* <ProductList /> */}
+        <ProductList />
       </main>
     </div>
   );
