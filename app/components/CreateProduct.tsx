@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { collection, addDoc } from 'firebase/firestore';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import type { Product } from '../../types/product';
 
 export default function CreateProduct() {
   const { db, auth } = useFirebase();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -14,31 +16,41 @@ export default function CreateProduct() {
   const [imageUrl, setImageUrl] = useState('');
   const [status, setStatus] = useState('');
 
-  if (!auth.currentUser) return null;
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('Auth state changed:', user?.email);
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, [auth]);
 
+  if (!currentUser) {
+    return null;
+  }
+
+  // Rest of your component remains the same
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     try {
       const productData: Omit<Product, 'id'> = {
         title,
         description,
         price: parseFloat(price),
         imageUrl,
-        sellerId: auth.currentUser.uid,
-        sellerEmail: auth.currentUser.email!,
+        sellerId: currentUser.uid,
+        sellerEmail: currentUser.email!,
         createdAt: Date.now()
       };
 
       await addDoc(collection(db, 'products'), productData);
       setStatus('Product created successfully!');
+      setIsOpen(false);
       
-      // Reset form and close modal
+      // Reset form
       setTitle('');
       setDescription('');
       setPrice('');
       setImageUrl('');
-      setIsOpen(false);
     } catch (error: any) {
       setStatus(`Error: ${error.message}`);
     }
@@ -48,15 +60,15 @@ export default function CreateProduct() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-8 right-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-4 shadow-lg"
+        className="fixed bottom-8 right-8 w-14 h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
         </svg>
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full m-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Create New Product</h2>
@@ -108,4 +120,4 @@ export default function CreateProduct() {
       )}
     </>
   );
-}
+} 

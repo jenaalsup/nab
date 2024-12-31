@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Auth from './components/Auth';
 import ProductList from './components/ProductList';
-import CreateProduct from "./components/CreateProductButton";
 
 export default function Home() {
   return (
@@ -13,7 +12,6 @@ export default function Home() {
         <p>nab the best deals from your block</p>
         <Auth />
         <ProductList />
-        <CreateProduct />
       </main>
     </div>
   );
