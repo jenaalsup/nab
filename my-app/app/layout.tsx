@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { DM_Sans, DM_Mono } from "next/font/google";
 import { FirebaseProvider } from '../contexts/FirebaseContext';
 import "./globals.css";
+import { AuthProvider } from '../contexts/AuthContext';
+
 
 // Importing DM Sans and DM Mono with specified weights
 const dmSans = DM_Sans({
@@ -29,7 +31,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${dmSans.variable} ${dmMono.variable}`}>
       <body>
-        <FirebaseProvider>{children}</FirebaseProvider>
+
+        <FirebaseProvider>
+          <AuthProvider>
+          {children}
+
+          </AuthProvider>
+          
+        </FirebaseProvider>
       </body>
     </html>
   );

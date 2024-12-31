@@ -12,11 +12,8 @@ import {
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
-
-
 export default function Auth() {
   const router = useRouter();
-
   const { auth } = useFirebase();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,25 +21,28 @@ export default function Auth() {
   const [status, setStatus] = useState('');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
+      if (user) {
+        // Redirect to /products if user is signed in
+        router.push('/products');
+      }
     });
+
     return () => unsubscribe();
-  }, [auth]);
+  }, [auth, router]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Check if email ends with .edu
     if (!email.toLowerCase().endsWith('.edu')) {
       setError('Only .edu email addresses are allowed to sign up.');
       setStatus('');
       return;
     }
-  
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await sendEmailVerification(userCredential.user);
@@ -90,7 +90,7 @@ export default function Auth() {
       ) : (
         <p className="mb-4 text-center">Not signed in</p>
       )}
-      
+
       <form className="space-y-4">
         <input
           type="email"
