@@ -12,7 +12,9 @@ export default function CreateProductForm() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
+  const [currentPrice, setCurrentPrice] = useState('');
+  const [minimumPrice, setMinimumPrice] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [status, setStatus] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -49,11 +51,29 @@ export default function CreateProductForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!title || !description || !currentPrice || !minimumPrice || !endDate || !imageFile) {
+      setStatus('Please fill in all fields');
+      return;
+    }
+
+    if (parseFloat(minimumPrice) > parseFloat(currentPrice)) {
+      setStatus('Minimum price cannot be higher than current price');
+      return;
+    }
+
+    const endDateTime = new Date(endDate).getTime();
+    if (endDateTime <= Date.now()) {
+      setStatus('End date must be in the future');
+      return;
+    }
+
+    setStatus('Uploading...');
     
     const formData = new FormData();
-    formData.append('file', imageFile!);
+    formData.append('file', imageFile);
     formData.append('upload_preset', 'listings');
-  
+
     try {
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/dxzkav00b/image/upload`,
@@ -64,22 +84,28 @@ export default function CreateProductForm() {
       );
       const data = await response.json();
       const imageUrl = data.secure_url;
-  
-      // Then save product with imageUrl to Firestore
+
       const productData = {
         title,
         description,
-        price: parseFloat(price),
+        currentPrice: parseFloat(currentPrice),
+        minimumPrice: parseFloat(minimumPrice),
+        endDate: endDateTime,
         imageUrl,
         sellerId: currentUser.uid,
         sellerEmail: currentUser.email!,
         createdAt: Date.now()
       };
-  
+
       await addDoc(collection(db, 'products'), productData);
-      router.push('/products');
-    } catch (error) {
+      setStatus('Product created successfully!');
+      
+      setTimeout(() => {
+        router.push('/products');
+      }, 1500);
+    } catch (error: any) {
       console.error('Error:', error);
+      setStatus(`Error: ${error.message}`);
     }
   };
 
@@ -109,12 +135,12 @@ export default function CreateProductForm() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Price ($)</label>
+       <div>
+          <label className="block text-sm font-medium mb-2">Current Price ($)</label>
           <input
             type="number"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            value={currentPrice}
+            onChange={(e) => setCurrentPrice(e.target.value)}
             placeholder="0.00"
             step="0.01"
             min="0"
@@ -123,6 +149,32 @@ export default function CreateProductForm() {
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-medium mb-2">Minimum Price ($)</label>
+          <input
+            type="number"
+            value={minimumPrice}
+            onChange={(e) => setMinimumPrice(e.target.value)}
+            placeholder="0.00"
+            step="0.01"
+            min="0"
+            className="w-full p-3 border rounded-lg text-black"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">End Date</label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
+            className="w-full p-3 border rounded-lg text-black"
+            required
+          />
+        </div>
+        
         <div>
           <label className="block text-sm font-medium mb-2">Product Image</label>
           <input

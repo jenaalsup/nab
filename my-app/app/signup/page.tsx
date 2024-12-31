@@ -4,7 +4,10 @@ import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { updateProfile } from 'firebase/auth';
+<<<<<<< HEAD
 
+=======
+>>>>>>> 95f3670f73f33ea79b9214efafee18e0efd597c4
 
 export default function SignUpPage() {
   const { signUp, error, loading } = useAuth();
@@ -31,20 +34,19 @@ export default function SignUpPage() {
   
     setFormError('');
     try {
-      const user = await signUp(email, password); // Ensure signUp returns the User object
-  
-      // Update the user profile with the name (Firebase)
+      const user = await signUp(email, password);
+      
+      // Update profile using updateProfile from Firebase Auth
       await updateProfile(user, {
-        displayName: name,
+        displayName: name
       });
   
-      router.push('/products'); // Redirect after successful sign-up
-    } catch (err: any) {
-      console.error(err.message); // Handle errors
-      setFormError(err.message);
+      router.push('/products'); // Redirect after successful sign up
+    } catch (err) {
+      console.error(err);
     }
   };
-
+  
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 bg-white rounded shadow-md">

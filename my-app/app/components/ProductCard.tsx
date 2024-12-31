@@ -7,6 +7,9 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const endDate = new Date(product.endDate);
+  const daysLeft = Math.ceil((product.endDate - Date.now()) / (1000 * 60 * 60 * 24));
+
   return (
     <div className="border rounded-lg shadow-sm p-4 bg-white/5">
       <img 
@@ -16,7 +19,13 @@ export default function ProductCard({ product }: ProductCardProps) {
       />
       <h3 className="text-xl font-semibold">{product.title}</h3>
       <p className="text-gray-600 mt-2">{product.description}</p>
-      <p className="text-lg font-bold mt-2">${product.price}</p>
+      <p className="text-lg font-bold mt-2">${product.currentPrice}</p>
+      <p className="text-sm text-gray-500">
+        Minimum price: ${product.minimumPrice}
+      </p>
+      <p className="text-sm text-gray-500">
+        {daysLeft > 0 ? `${daysLeft} days left` : 'Listing ended'}
+      </p>
       <p className="text-sm text-gray-500 mt-2">
         Posted by: {product.sellerEmail}
       </p>
