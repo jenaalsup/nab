@@ -5,8 +5,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { updateProfile } from 'firebase/auth';
 
+
 export default function SignUpPage() {
-  const { signUp, error, loading } = useAuth();
+  const { signUp, signIn, error, loading } = useAuth();
+
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
 
@@ -38,8 +40,9 @@ export default function SignUpPage() {
       });
   
       alert('Sign-up successful! A verification email has been sent to your email address. Please verify your email to log in.');
+      await signIn(email, password);
   
-      router.push('/login'); // Redirect after successful sign up
+      router.push('/onboarding'); // Redirect after successful sign up
     } catch (err) {
       console.error(err);
       setFormError('Failed to sign up. Please try again.');
