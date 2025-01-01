@@ -16,6 +16,8 @@ const OnboardingPage = () => {
 
   const availableInterests = ['Furniture', 'Clothing', 'Books', 'Homewares'];
 
+  const { displayName, email } = currentUser;
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setProfilePicture(e.target.files[0]);
@@ -57,20 +59,16 @@ const OnboardingPage = () => {
     }
   };
 
-  if (!currentUser) {
-    return <div>Please log in to complete your profile</div>;
-  }
-
-  return (
+  if (!currentUser) {return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-lg p-8 bg-white rounded shadow-md">
         <h1 className="text-2xl font-bold text-center mb-6">Complete Your Profile</h1>
         <label className="block text-sm font-medium text-gray-700">Name</label>
 
-        <p className="pb-4">{currentUser.displayName}</p>
+        <p className="pb-4">{displayName}</p>
         <label className="block text-sm font-medium text-gray-700">Email</label>
 
-        <p className="pb-4">{currentUser.email}</p>
+        <p className="pb-4">{email}</p>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
@@ -132,6 +130,7 @@ const OnboardingPage = () => {
       </div>
     </div>
   );
+};
 };
 
 export default OnboardingPage;
