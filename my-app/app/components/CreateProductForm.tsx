@@ -88,7 +88,8 @@ export default function CreateProductForm() {
       const productData = {
         title,
         description,
-        currentPrice: parseFloat(currentPrice),
+        listedPrice: parseFloat(currentPrice),    // Store original price
+        currentPrice: parseFloat(currentPrice),    // Start with same price
         minimumPrice: parseFloat(minimumPrice),
         endDate: endDateTime,
         imageUrl,
