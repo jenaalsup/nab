@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { onAuthStateChanged, User, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { onAuthStateChanged, User, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { useFirebase } from './FirebaseContext';
 
 type AuthContextType = {
@@ -72,6 +72,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setError(null);
       setLoading(true);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  
+      // Send email verification
+      await sendEmailVerification(userCredential.user);
+  
       return userCredential.user; // Always return the User object on success
     } catch (err: any) {
       setError(err.message);
