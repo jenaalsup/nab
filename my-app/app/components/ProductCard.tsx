@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+import { useRouter } from 'next/navigation'; // Import useRouter
 import { Product } from '../../types/product';
 import { calculateCurrentPrice } from '../../utils/priceCalculator';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, updateDoc } from 'firebase/firestore';
-import Image from 'next/image';
 
 interface ProductCardProps {
   product: Product;
@@ -13,22 +14,23 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { db } = useFirebase();
+  const router = useRouter();
   const [currentPrice, setCurrentPrice] = useState(() => 
     calculateCurrentPrice(
-      product.listedPrice,  // Use listedPrice for calculation
+      product.listedPrice,
       product.minimumPrice,
       product.createdAt,
       product.endDate,
       Date.now()
     )
   );
-  
+
   const daysLeft = Math.ceil((product.endDate - Date.now()) / (1000 * 60 * 60 * 24));
 
   useEffect(() => {
     const updatePrice = async () => {
       const newPrice = calculateCurrentPrice(
-        product.listedPrice,  // Use listedPrice for calculation
+        product.listedPrice,
         product.minimumPrice,
         product.createdAt,
         product.endDate,
@@ -51,12 +53,17 @@ export default function ProductCard({ product }: ProductCardProps) {
     return () => clearInterval(interval);
   }, [product.id, product.listedPrice, product.minimumPrice, product.createdAt, product.endDate, db]);
 
+  const handleCardClick = () => {
+    router.push(`/products/${product.id}`); // Navigate to the dynamic route
+  };
+
   return (
-    <div className="border rounded-lg shadow-sm p-4 bg-white/5">
-      <Image 
+    <div
+      className="border rounded-lg shadow-sm p-4 bg-white/5 cursor-pointer hover:translate-y-[-5px] transition-all duration-300"
+      onClick={handleCardClick} // Add click handler
+    >
+      <img
         src={product.imageUrl} 
-        height={100}
-        width={100}
         alt={product.title}
         className="w-full h-48 object-cover rounded-lg mb-4"
       />
