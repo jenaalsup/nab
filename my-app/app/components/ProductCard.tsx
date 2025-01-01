@@ -5,6 +5,7 @@ import { Product } from '../../types/product';
 import { calculateCurrentPrice } from '../../utils/priceCalculator';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, updateDoc } from 'firebase/firestore';
+import Image from 'next/image';
 
 interface ProductCardProps {
   product: Product;
@@ -52,8 +53,10 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div className="border rounded-lg shadow-sm p-4 bg-white/5">
-      <img 
+      <Image 
         src={product.imageUrl} 
+        height={100}
+        width={100}
         alt={product.title}
         className="w-full h-48 object-cover rounded-lg mb-4"
       />

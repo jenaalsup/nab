@@ -5,6 +5,7 @@ import { useFirebase } from '../../contexts/FirebaseContext';
 import { collection, addDoc } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function CreateProductForm() {
   const { db, auth } = useFirebase();
@@ -190,9 +191,11 @@ export default function CreateProductForm() {
             required
           />
           {imagePreview && (
-            <img
+            <Image
               src={imagePreview}
               alt="Preview"
+              height={100}
+              width={100}
               className="mt-2 w-full h-48 object-cover rounded-lg"
             />
           )}
