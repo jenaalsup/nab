@@ -70,7 +70,7 @@ export default function LoginPage() {
         {formError && <p className="mt-4 text-red-500">{formError}</p>}
         {error && <p className="mt-4 text-red-500">{error}</p>}
         <p className="mt-6 text-center text-sm">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <a href="/signup" className="text-blue-500 hover:underline">
             Sign Up
           </a>
