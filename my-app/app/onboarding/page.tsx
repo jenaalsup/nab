@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { updateProfile } from 'firebase/auth';
+import { useFirebase } from '../../contexts/FirebaseContext';
+import { doc, setDoc } from 'firebase/firestore';
 
 const OnboardingPage = () => {
   const { currentUser } = useAuth();
@@ -13,13 +15,11 @@ const OnboardingPage = () => {
   const [interests, setInterests] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
   const availableInterests = ['Furniture', 'Clothing', 'Books', 'Homewares'];
-
-  //const { displayName, email } = currentUser;
   const displayName = currentUser?.displayName ?? '';
   const email = currentUser?.email ?? '';
-  
+  const { db } = useFirebase();
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setProfilePicture(e.target.files[0]);
@@ -51,8 +51,17 @@ const OnboardingPage = () => {
         displayName: currentUser.displayName,
       });
 
-      // Save additional details like bio, location, and interests to your database
-      // This requires implementing a Firestore or Realtime Database integration.
+      const userData = {
+        id: currentUser.uid,
+        email: currentUser.email,
+        displayName: currentUser.displayName,
+        bio,
+        location,
+        interests,
+        createdAt: Date.now()
+      };
+
+      await setDoc(doc(db, 'users', currentUser.uid), userData);
 
       router.push('/products');
     } catch (err) {
