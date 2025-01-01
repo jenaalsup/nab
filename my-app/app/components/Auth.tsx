@@ -48,8 +48,12 @@ export default function Auth() {
       await sendEmailVerification(userCredential.user);
       setStatus('Verification email sent! Please check your inbox.');
       setError('');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: Error | unknown) {
+      if (error instanceof Error) {
+        console.error('Error updating price:', error.message);
+      } else {
+        console.error('Unknown error updating price:', error);
+      }
       setStatus('');
     }
   };
@@ -61,8 +65,12 @@ export default function Auth() {
       setStatus('Successfully signed in!');
       setError('');
       router.push('/products'); // Redirect to products page after successful sign in
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: Error | unknown) {
+      if (error instanceof Error) {
+        console.error('Error updating price:', error.message);
+      } else {
+        console.error('Unknown error updating price:', error);
+      }
       setStatus('');
     }
   };
@@ -72,8 +80,12 @@ export default function Auth() {
       await signOut(auth);
       setStatus('Successfully signed out!');
       setError('');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: Error | unknown) {
+      if (error instanceof Error) {
+        console.error('Error updating price:', error.message);
+      } else {
+        console.error('Unknown error updating price:', error);
+      }
       setStatus('');
     }
   };

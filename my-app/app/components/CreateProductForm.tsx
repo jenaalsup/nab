@@ -104,9 +104,13 @@ export default function CreateProductForm() {
       setTimeout(() => {
         router.push('/products');
       }, 1500);
-    } catch (error: any) {
-      console.error('Error:', error);
-      setStatus(`Error: ${error.message}`);
+    } catch (error: Error | unknown) {
+      if (error instanceof Error) {
+        console.error('Error updating price:', error.message);
+        setStatus(`Error: ${error.message}`);
+      } else {
+        console.error('Unknown error updating price:', error);
+      }
     }
   };
 
