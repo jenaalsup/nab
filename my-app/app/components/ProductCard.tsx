@@ -22,7 +22,6 @@ export default function ProductCard({ product }: ProductCardProps) {
     )
   );
   
-  const endDate = new Date(product.endDate);
   const daysLeft = Math.ceil((product.endDate - Date.now()) / (1000 * 60 * 60 * 24));
 
   useEffect(() => {
