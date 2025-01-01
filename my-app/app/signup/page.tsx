@@ -31,17 +31,21 @@ export default function SignUpPage() {
     setFormError('');
     try {
       const user = await signUp(email, password);
-      
+  
       // Update profile using updateProfile from Firebase Auth
       await updateProfile(user, {
-        displayName: name
+        displayName: name,
       });
   
-      router.push('/products'); // Redirect after successful sign up
+      alert('Sign-up successful! A verification email has been sent to your email address. Please verify your email to log in.');
+  
+      router.push('/login'); // Redirect after successful sign up
     } catch (err) {
       console.error(err);
+      setFormError('Failed to sign up. Please try again.');
     }
   };
+  
   
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
