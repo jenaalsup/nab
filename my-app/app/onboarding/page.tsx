@@ -16,8 +16,10 @@ const OnboardingPage = () => {
 
   const availableInterests = ['Furniture', 'Clothing', 'Books', 'Homewares'];
 
-  const { displayName, email } = currentUser;
-
+  //const { displayName, email } = currentUser;
+  const displayName = currentUser?.displayName ?? '';
+  const email = currentUser?.email ?? '';
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setProfilePicture(e.target.files[0]);
