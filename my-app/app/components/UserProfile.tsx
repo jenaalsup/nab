@@ -4,8 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, getDoc } from 'firebase/firestore';
-import Image from 'next/image';
-import type { User } from '../../types/user';
+import type { User } from '@/types/user';
 import { useRouter } from 'next/navigation';
 
 const UserProfile = () => {
@@ -77,7 +76,7 @@ const UserProfile = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <Image 
+        <img 
           src={userData?.photoURL || currentUser?.photoURL || "/images/profile.png"} 
           alt="profile" 
           width={100} 
@@ -114,6 +113,17 @@ const UserProfile = () => {
           <ul className="list-disc list-inside">
             {userData.interests.map((interest: string) => (
               <li key={interest}>{interest}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {userData?.communities && userData.communities.length > 0 && (
+        <div className="p-2">
+          <h2 className="font-semibold">Communities</h2>
+          <ul className="list-disc list-inside">
+            {userData.communities.map((community: string) => (
+              <li key={community}>{community}</li>
             ))}
           </ul>
         </div>

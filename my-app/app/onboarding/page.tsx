@@ -8,6 +8,7 @@ import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useSearchParams } from 'next/navigation';
 import type { User } from '../../types/user';
+import Select from 'react-select';
 
 const OnboardingPage = () => {
   const { currentUser } = useAuth();
@@ -23,6 +24,12 @@ const OnboardingPage = () => {
   const { db } = useFirebase();
   const searchParams = useSearchParams();
   const isEditing = searchParams.get('edit') === 'true';
+  const [communities, setCommunities] = useState<string[]>([]);
+  const availableCommunities = [
+    { value: 'Caltech', label: 'Caltech' },
+    { value: 'NYU', label: 'NYU' },
+    { value: 'Impact Labs', label: 'Impact Labs' }
+  ];
   
   // Add this effect to load existing data
   useEffect(() => {
@@ -36,6 +43,7 @@ const OnboardingPage = () => {
           setBio(userData.bio || '');
           setLocation(userData.location || '');
           setInterests(userData.interests || []);
+          setCommunities(userData.communities || []);
         }
       } catch (err) {
         console.error('Error loading user data:', err);
@@ -105,6 +113,7 @@ const OnboardingPage = () => {
         bio,
         location,
         interests,
+        communities,
         updatedAt: Date.now(),
       };
   
@@ -179,6 +188,27 @@ const OnboardingPage = () => {
                 </label>
               ))}
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Communities</label>
+            <Select
+              isMulti
+              name="communities"
+              options={availableCommunities}
+              className="mt-1"
+              value={availableCommunities.filter(option => 
+                communities.includes(option.value)
+              )}
+              onChange={(selectedOptions) => {
+                setCommunities(
+                  selectedOptions
+                    ? selectedOptions.map(option => option.value)
+                    : []
+                );
+              }}
+              placeholder="Select communities to join..."
+            />
           </div>
 
           <button
