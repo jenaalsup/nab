@@ -5,6 +5,7 @@ export interface User {
   bio?: string;
   location?: string;
   interests?: string[];
-  createdAt: number;
-  photoURL?: string;
+  createdAt?: number;
+  updatedAt: number;
+  photoURL: string | null;  // Changed from string | undefined to string | null
 }
