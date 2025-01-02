@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useFirebase } from '../../../contexts/FirebaseContext';
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
 import type { Product } from '../../../types/product';
 import Navbar from '../../components/Navbar';
+import { User } from '../../../types/user';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState('');
   const [purchaseStatus, setPurchaseStatus] = useState('');
+  const [userData, setUserData] = useState<User | null>(null);
 
   useEffect(() => {
     if (!id) {
@@ -26,7 +28,8 @@ export default function ProductPage() {
 
     const fetchProduct = async () => {
       try {
-        const productRef = doc(db, 'products', Array.isArray(id) ? id[0] : id);        const productSnap = await getDoc(productRef);
+        const productRef = doc(db, 'products', Array.isArray(id) ? id[0] : id);
+        const productSnap = await getDoc(productRef);
 
         if (productSnap.exists()) {
           setProduct(productSnap.data() as Product);
@@ -41,6 +44,20 @@ export default function ProductPage() {
 
     fetchProduct();
   }, [db, id]);
+
+
+  useEffect(() => {
+    if (!currentUser) return;
+  
+    const userRef = doc(db, 'users', currentUser.uid);
+    const unsubscribe = onSnapshot(userRef, (doc) => {
+      if (doc.exists()) {
+        setUserData(doc.data() as User);
+      }
+    });
+  
+    return () => unsubscribe();
+  }, [currentUser, db]);
 
   if (error) return <p className="text-red-500">{error}</p>;
   if (!product) return <p>Loading...</p>;
@@ -60,13 +77,20 @@ export default function ProductPage() {
         setPurchaseStatus('You cannot purchase your own item.');
         return;
       }
-      
+
       const productRef = doc(db, 'products', id as string);
       await updateDoc(productRef, {
         is_bought: true,
         buyerId: currentUser.uid,
         buyerEmail: currentUser.email
       });
+
+      if (userData?.wishlistedProducts?.includes(id as string)) {
+        const userRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userRef, {
+          wishlistedProducts: userData.wishlistedProducts.filter(pid => pid !== id)
+        });
+      }
 
       setProduct({
         ...product,
@@ -95,6 +119,42 @@ export default function ProductPage() {
   
   const handleEdit = () => {
     router.push(`/create?edit=true&productId=${id}`);
+  };
+
+  const handleWishlist = async () => {
+    if (!currentUser) return;
+    
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userRef);
+      
+      // Initialize user document if it doesn't exist
+      if (!userDoc.exists()) {
+        await setDoc(userRef, {
+          wishlistedProducts: [id],
+          email: currentUser.email,
+          displayName: currentUser.displayName
+        });
+        setPurchaseStatus('Added to wishlist');
+        return;
+      }
+      
+      const userData = userDoc.data() as User;
+      const wishlist = userData.wishlistedProducts || [];
+      const isWishlisted = wishlist.includes(id as string);
+      
+      await updateDoc(userRef, {
+        wishlistedProducts: isWishlisted
+          ? wishlist.filter(productId => productId !== id)
+          : [...wishlist, id]
+      });
+  
+      setPurchaseStatus(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
+      setTimeout(() => setPurchaseStatus(''), 2000);
+    } catch (err) {
+      console.error('Failed to update wishlist:', err);
+      setError('Failed to update wishlist.');
+    }
   };
 
   return (
@@ -140,14 +200,28 @@ export default function ProductPage() {
               </button>
             </div>
           ) : (
-            // Show purchase button for non-owners
+            // Show purchase and wishlist buttons for non-owners
             !product.is_bought && (
-              <button
-                onClick={handlePurchase}
-                className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-              >
-                Purchase for ${(product.currentPrice || 0).toFixed(2)}
-              </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={handleWishlist}
+                  className={`px-6 py-3 ${
+                    userData?.wishlistedProducts?.includes(id as string)
+                      ? 'bg-pink-500 hover:bg-pink-600'
+                      : 'bg-gray-500 hover:bg-gray-600'
+                  } text-white rounded-lg transition-colors`}
+                >
+                  {userData?.wishlistedProducts?.includes(id as string) 
+                    ? 'Remove from Wishlist' 
+                    : 'Add to Wishlist'}
+                </button>
+                <button
+                  onClick={handlePurchase}
+                  className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  Purchase for ${(product.currentPrice || 0).toFixed(2)}
+                </button>
+              </div>
             )
           )}
         </div>

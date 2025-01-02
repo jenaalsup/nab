@@ -16,9 +16,10 @@ const UserProfile = () => {
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'profile' | 'active' | 'sold' | 'purchases'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'active' | 'sold' | 'purchases' | 'wishlist'>('profile');
   const [userProducts, setUserProducts] = useState<Product[]>([]);
   const [purchasedProducts, setPurchasedProducts] = useState<Product[]>([]);
+  const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
 
   const handleSignOut = async () => {
     await signOutUser();
@@ -90,6 +91,37 @@ const UserProfile = () => {
   
     return () => unsubscribe();
   }, [currentUser, db]);
+
+  useEffect(() => {
+    if (!currentUser || !userData?.wishlistedProducts?.length) {
+      setWishlistProducts([]);
+      return;
+    }
+  
+    const fetchWishlistedProducts = async () => {
+      try {
+        const productsRef = collection(db, 'products');
+        const q = query(
+          productsRef,
+          where('__name__', 'in', userData.wishlistedProducts)
+        );
+        
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const products = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          })) as Product[];
+          setWishlistProducts(products);
+        });
+  
+        return () => unsubscribe();
+      } catch (error) {
+        console.error('Error fetching wishlist:', error);
+      }
+    };
+  
+    fetchWishlistedProducts();
+  }, [currentUser, userData?.wishlistedProducts, db]);
 
   if (!currentUser) {
     return (
@@ -211,6 +243,16 @@ const UserProfile = () => {
           >
             Purchases ({purchasedProducts.length})
           </button>
+          <button
+            onClick={() => setActiveTab('wishlist')}
+            className={`px-4 py-2 rounded ${
+              activeTab === 'wishlist' 
+                ? 'bg-blue-500 text-white' 
+                : 'bg-gray-200 hover:bg-gray-300'
+            }`}
+          >
+            Wishlist ({wishlistProducts.length})
+          </button>
         </div>
   
         {/* Tab Content */}
@@ -246,6 +288,19 @@ const UserProfile = () => {
             {purchasedProducts.length === 0 && (
               <p className="text-gray-500 col-span-full text-center">
                 You have not purchased any items yet.
+              </p>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'wishlist' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {wishlistProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+            {wishlistProducts.length === 0 && (
+              <p className="text-gray-500 col-span-full text-center">
+                Your wishlist is empty.
               </p>
             )}
           </div>

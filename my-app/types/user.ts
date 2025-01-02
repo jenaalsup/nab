@@ -8,5 +8,6 @@ export interface User {
   communities?: string[];
   createdAt?: number;
   updatedAt: number;
-  photoURL: string | null;  // Changed from string | undefined to string | null
+  photoURL: string | null;  
+  wishlistedProducts?: string[];
 }
