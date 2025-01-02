@@ -118,6 +118,17 @@ const UserProfile = () => {
         </div>
       )}
 
+      {userData?.communities && userData.communities.length > 0 && (
+        <div className="p-2">
+          <h2 className="font-semibold">Communities</h2>
+          <ul className="list-disc list-inside">
+            {userData.communities.map((community: string) => (
+              <li key={community}>{community}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <button onClick={handleSignOut} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Sign Out</button>
     </div>
   );
