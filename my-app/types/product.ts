@@ -11,4 +11,5 @@ export interface Product {
   sellerEmail: string;
   createdAt: number;
   communities: string[];
+  is_bought: boolean; 
 }

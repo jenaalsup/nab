@@ -3,15 +3,18 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useFirebase } from '../../../contexts/FirebaseContext';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { useAuth } from '../../../contexts/AuthContext';
 import type { Product } from '../../../types/product';
 import Navbar from '../../components/Navbar';
 
 export default function ProductPage() {
-  const { id } = useParams(); // Get the product ID from the URL
+  const { id } = useParams();
   const { db } = useFirebase();
+  const { currentUser } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState('');
+  const [purchaseStatus, setPurchaseStatus] = useState('');
 
   useEffect(() => {
     if (!id) {
@@ -40,6 +43,39 @@ export default function ProductPage() {
   if (error) return <p className="text-red-500">{error}</p>;
   if (!product) return <p>Loading...</p>;
 
+  const handlePurchase = async () => {
+    if (!product || !currentUser) return;
+
+    try {
+      // Don't allow purchase of already bought items
+      if (product.is_bought) {
+        setPurchaseStatus('This item has already been purchased.');
+        return;
+      }
+
+      // Don't allow sellers to purchase their own items
+      if (product.sellerId === currentUser.uid) {
+        setPurchaseStatus('You cannot purchase your own item.');
+        return;
+      }
+
+      const productRef = doc(db, 'products', id as string);
+      await updateDoc(productRef, {
+        is_bought: true
+      });
+
+      setProduct({
+        ...product,
+        is_bought: true
+      });
+
+      setPurchaseStatus('Purchase successful! The seller will contact you soon.');
+    } catch (err) {
+      console.error('Failed to purchase product:', err);
+      setPurchaseStatus('Failed to complete purchase. Please try again.');
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-4">
               <Navbar />
@@ -64,6 +100,26 @@ export default function ProductPage() {
       <p className="text-sm text-gray-500 mt-2">
         Posted by: {product.sellerEmail}
       </p>
+      {product && !product.is_bought && currentUser && product.sellerId !== currentUser.uid && (
+        <button
+          onClick={handlePurchase}
+          className="mt-6 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+        >
+          Purchase for ${(product.currentPrice || 0).toFixed(2)}
+        </button>
+      )}
+
+      {product?.is_bought && (
+        <div className="mt-6 p-4 bg-gray-100 rounded-lg text-center">
+          This item has been purchased
+        </div>
+      )}
+
+      {purchaseStatus && (
+        <div className="mt-4 p-4 rounded-lg text-center">
+          {purchaseStatus}
+        </div>
+      )}
     </div>
   );
 }

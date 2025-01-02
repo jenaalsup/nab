@@ -106,6 +106,7 @@ export default function CreateProductForm() {
         sellerEmail: currentUser.email!,
         createdAt: Date.now(),
         communities: communities,
+        is_bought: false, 
       };
 
       await addDoc(collection(db, 'products'), productData);

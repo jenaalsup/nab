@@ -62,6 +62,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       className="border rounded-lg shadow-sm p-4 bg-white/5 cursor-pointer hover:translate-y-[-5px] transition-all duration-300"
       onClick={handleCardClick} // Add click handler
     >
+      {product.is_bought && (
+        <div className="absolute top-2 right-2 px-2 py-1 bg-gray-500 text-white rounded-full text-xs">
+          Sold
+        </div>
+      )}
       <img
         src={product.imageUrl} 
         alt={product.title}
