@@ -6,6 +6,7 @@ import { useFirebase } from '../../../contexts/FirebaseContext';
 import { doc, getDoc } from 'firebase/firestore';
 import Image from 'next/image';
 import type { Product } from '../../../types/product';
+import Navbar from '../../components/Navbar';
 
 export default function ProductPage() {
   const { id } = useParams(); // Get the product ID from the URL
@@ -42,6 +43,7 @@ export default function ProductPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
+              <Navbar />
       <Image 
         src={product.imageUrl}
         height={300}

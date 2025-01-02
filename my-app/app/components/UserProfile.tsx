@@ -6,13 +6,22 @@ import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, getDoc } from 'firebase/firestore';
 import Image from 'next/image';
 import type { User } from '../../types/user';
+import { useRouter } from 'next/navigation';
 
 const UserProfile = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, signOutUser } = useAuth();
   const { db } = useFirebase();
+  const router = useRouter();
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+
+  const handleSignOut = async () => {
+    await signOutUser();
+    router.push('/login');
+  };
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -96,6 +105,8 @@ const UserProfile = () => {
           </ul>
         </div>
       )}
+
+      <button onClick={handleSignOut} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Sign Out</button>
     </div>
   );
 };
