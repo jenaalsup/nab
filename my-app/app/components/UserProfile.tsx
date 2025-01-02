@@ -245,7 +245,7 @@ const UserProfile = () => {
             ))}
             {purchasedProducts.length === 0 && (
               <p className="text-gray-500 col-span-full text-center">
-                You haven't purchased any items yet.
+                You have not purchased any items yet.
               </p>
             )}
           </div>
