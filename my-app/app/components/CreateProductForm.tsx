@@ -5,6 +5,7 @@ import { useFirebase } from '../../contexts/FirebaseContext';
 import { collection, addDoc } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import Select from 'react-select';
 
 export default function CreateProductForm() {
   const { db, auth } = useFirebase();
@@ -18,6 +19,14 @@ export default function CreateProductForm() {
   const [status, setStatus] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [communities, setCommunities] = useState<string[]>([]);
+
+  const availableCommunities = [
+    { value: 'Caltech', label: 'Caltech' },
+    { value: 'NYU', label: 'NYU' },
+    { value: 'Impact Labs', label: 'Impact Labs' }
+  ];
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -95,7 +104,8 @@ export default function CreateProductForm() {
         imageUrl,
         sellerId: currentUser.uid,
         sellerEmail: currentUser.email!,
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        communities: communities,
       };
 
       await addDoc(collection(db, 'products'), productData);
@@ -196,6 +206,27 @@ export default function CreateProductForm() {
               className="mt-2 w-full h-48 object-cover rounded-lg"
             />
           )}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Communities</label>
+          <Select
+            isMulti
+            name="communities"
+            options={availableCommunities}
+            className="mt-1"
+            value={availableCommunities.filter(option => 
+              communities.includes(option.value)
+            )}
+            onChange={(selectedOptions) => {
+              setCommunities(
+                selectedOptions
+                  ? selectedOptions.map(option => option.value)
+                  : []
+              );
+            }}
+            placeholder="Select communities for this listing..."
+          />
         </div>
 
         <button
