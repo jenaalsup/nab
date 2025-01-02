@@ -6,6 +6,7 @@ import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, getDoc } from 'firebase/firestore';
 import Image from 'next/image';
 import type { User } from '../../types/user';
+import { useRouter } from 'next/navigation';
 
 const UserProfile = () => {
   const { currentUser } = useAuth();
@@ -13,6 +14,7 @@ const UserProfile = () => {
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -61,14 +63,27 @@ const UserProfile = () => {
     );
   }
 
+  const handleEditProfile = () => {
+    router.push('/onboarding?edit=true');
+  };
+
   return (
     <div className="space-y-4">
-      <Image 
-        src={currentUser.photoURL || "/images/profile.png"} 
-        alt="profile" 
-        width={100} 
-        height={100} 
-      />
+      <div className="flex justify-between items-center">
+        <Image 
+          src={userData?.photoURL || currentUser?.photoURL || "/images/profile.png"} 
+          alt="profile" 
+          width={100} 
+          height={100} 
+          className="rounded-full"
+        />
+        <button
+          onClick={handleEditProfile}
+          className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+        >
+          Edit Profile
+        </button>
+      </div>
       <h1 className="text-2xl font-bold p-2">{userData?.displayName || currentUser.displayName}</h1>
       <p className="p-2">{userData?.email || currentUser.email}</p>
       
