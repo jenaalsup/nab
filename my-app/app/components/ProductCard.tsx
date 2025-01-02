@@ -86,6 +86,20 @@ export default function ProductCard({ product }: ProductCardProps) {
       <p className="text-sm text-gray-500 mt-2">
         Posted by: {product.sellerEmail}
       </p>
+      <div className="mt-2">
+        {product.communities && product.communities.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {product.communities.map((community) => (
+              <span 
+                key={community}
+                className="px-2 py-1 bg-gray-100 rounded-full text-xs text-gray-600"
+              >
+                {community}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

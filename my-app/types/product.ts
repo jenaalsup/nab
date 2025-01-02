@@ -10,4 +10,5 @@ export interface Product {
   sellerId: string;
   sellerEmail: string;
   createdAt: number;
+  communities: string[];
 }
