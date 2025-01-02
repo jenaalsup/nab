@@ -157,6 +157,30 @@ export default function ProductPage() {
         </div>
       )}
 
+      {product?.is_bought && product.sellerId === currentUser?.uid && (
+        <div className="mt-6">
+          <button
+            onClick={async () => {
+              try {
+                const productRef = doc(db, 'products', id as string);
+                await updateDoc(productRef, {
+                  is_bought: false,
+                  createdAt: Date.now(),
+                  currentPrice: product.listedPrice // Reset to original price
+                });
+                router.push(`/create?edit=true&productId=${id}&relist=true`);
+              } catch (err) {
+                console.error('Failed to relist product:', err);
+                setError('Failed to relist product.');
+              }
+            }}
+            className="px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+          >
+            Relist Item
+          </button>
+        </div>
+      )}
+
       {purchaseStatus && (
         <div className="mt-4 p-4 rounded-lg text-center">
           {purchaseStatus}

@@ -147,6 +147,10 @@ export default function CreateProductForm() {
         imageUrl,
         communities,
         updatedAt: Date.now(),
+        ...(searchParams.get('relist') === 'true' && {
+          createdAt: Date.now(),
+          is_bought: false
+        })
       };
   
       if (isEditing && productId) {
@@ -288,7 +292,11 @@ export default function CreateProductForm() {
           type="submit"
           className="w-full p-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
         >
-          {isEditing ? 'Update Listing' : 'List Item for Sale'}
+          {isEditing 
+            ? searchParams.get('relist') === 'true'
+              ? 'Relist Item'
+              : 'Update Listing'
+            : 'List Item for Sale'}
         </button>
       </form>
 
