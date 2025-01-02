@@ -6,6 +6,7 @@ import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Select from 'react-select';
+import { Product } from '@/types/product';
 
 export default function CreateProductForm() {
   const { db, auth } = useFirebase();
