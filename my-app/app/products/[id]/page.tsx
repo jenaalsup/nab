@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useFirebase } from '../../../contexts/FirebaseContext';
 import { doc, getDoc } from 'firebase/firestore';
-import Image from 'next/image';
 import type { Product } from '../../../types/product';
 import Navbar from '../../components/Navbar';
 

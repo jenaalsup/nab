@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, getDoc } from 'firebase/firestore';
-import Image from 'next/image';
 import type { User } from '../../types/user';
 import { useRouter } from 'next/navigation';
 
@@ -77,7 +76,7 @@ const UserProfile = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <Image 
+        <img 
           src={userData?.photoURL || currentUser?.photoURL || "/images/profile.png"} 
           alt="profile" 
           width={100} 
