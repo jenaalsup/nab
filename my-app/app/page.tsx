@@ -1,6 +1,7 @@
 "use client"
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useRef, useEffect } from 'react'
 
 const Navbar = () => (
   <nav className="fixed w-full bg-white/80 backdrop-blur-sm z-50 border-b border-gray-100">
@@ -120,7 +121,7 @@ const Steps = () => (
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-[#fafafa]">
       <Navbar />
       
       {/* Hero Section */}
@@ -253,6 +254,6 @@ export default function Home() {
       <footer className="container mx-auto px-4 py-8 text-center text-gray-500 text-sm border-t border-[#00693E]/10">
         © 2024 nab. all rights reserved.
       </footer>
-    </main>
+    </div>
   )
 }

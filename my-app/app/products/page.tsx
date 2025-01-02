@@ -22,13 +22,18 @@ export default function Products() {
   }
 
   return (
-    <div className="max-w-[900px] m-auto max-h-screen">
-      <Navbar />
-      <main className="flex flex-col gap-8 row-start-2 items-center">
-        <h1 className="text-4xl font-bold">PRODUCT LIST</h1>
-        <p>nab the best deals from your block</p>
-        <ProductList />
-      </main>
+    <div>
+      
+      <div className="max-w-[900px] m-auto max-h-screen">
+        <Navbar />
+        <div className="flex flex-col gap-8 row-start-2 items-center">
+          <h1 className="text-4xl font-bold">PRODUCT LIST</h1>
+          <p>nab the best deals from your block</p>
+        </div>
+      </div>
+
+      <ProductList />
+
     </div>
   );
 }

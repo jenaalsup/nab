@@ -38,3 +38,21 @@ h2 {
 p {
   font-weight: 400;  /* Regular weight for paragraphs */
 }
+
+
+.h-scroll {
+  /* overflow-y: auto; */
+  overflow-x: hidden;
+  transform-origin: right top;
+  transform: rotate(-90deg) translateY(-100px);
+}
+
+.h-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+
+.h-scroll > div {
+  transform: rotate(90deg);
+  transform-origin: right top;
+}
