@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, getDoc } from 'firebase/firestore';
-import type { User } from '../../types/user';
+import type { User } from '@/types/user';
 import { useRouter } from 'next/navigation';
 
 const UserProfile = () => {
