@@ -7,7 +7,7 @@ const Navbar = () => (
     <div className="container mx-auto px-4 py-4 flex justify-between items-center">
       <Link href="/" className="text-2xl font-bold">nab</Link>
       <div className="flex gap-6 items-center">
-        <Link href="/signup" className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">
+        <Link href="/signup" className="px-4 py-2 border border-black rounded-lg hover:bg-gray-800">
           Sign up
         </Link>
       </div>
@@ -72,9 +72,9 @@ const Testimonials = () => (
 )
 
 const Steps = () => (
-  <section className="container mx-auto px-4 py-32 bg-white">
-    <h2 className="text-3xl md:text-4xl font-bold  mb-12">how it works</h2>
-    <div className="max-w-3xl mx-auto space-y-8">
+  <section className="container mx-auto px-36 my-20 py-20 bg-[#ffffff] border border-gray-100 rounded-lg">
+    <h2 className="text-3xl md:text-4xl font-bold text-center mb-24 tracking-tight">how it works</h2>
+    <div className="max-w-3xl mx-auto space-y-6">
       {[
         {
           number: "01",
@@ -151,7 +151,7 @@ export default function Home() {
               className="px-8 py-4 bg-black text-white rounded-lg tracking-wide
                          transition-all duration-300
 "            >
-              Start Nabbing
+              start nabbing
             </motion.button>
           </Link>
 
@@ -163,9 +163,9 @@ export default function Home() {
       </section>
 
       {/* How it Works Section */}
-      <section className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto space-y-4">
+      <section className="py-8">
+        <div className="container mx-auto">
+          <div className="max-w-3xl mx-auto">
             <Steps />
           </div>
         </div>
@@ -220,13 +220,15 @@ export default function Home() {
       <Testimonials />
 
       {/* Final CTA Section */}
-      <section className="container mx-auto px-4  max-w-5xl my-20 py-32 bg-[#ffffff] border border-gray-100 rounded-lg">
+      <section className="container mx-auto px-4  max-w-5xl my-20 py-24 bg-[#ffffff] border border-gray-100 rounded-lg">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto "
         >
+                  <img src="./plant.png" alt="hero" className="w-[25%] h-auto m-auto mb-4" />
+
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-black tracking-tight">
             get your bag and nab some swag
           </h2>
