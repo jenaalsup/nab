@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useFirebase } from '../../contexts/FirebaseContext';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Select from 'react-select';
 
 export default function CreateProductForm() {
@@ -20,6 +20,9 @@ export default function CreateProductForm() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [communities, setCommunities] = useState<string[]>([]);
+  const searchParams = useSearchParams();
+  const isEditing = searchParams.get('edit') === 'true';
+  const productId = searchParams.get('productId');
 
   const availableCommunities = [
     { value: 'Caltech', label: 'Caltech' },
@@ -34,6 +37,40 @@ export default function CreateProductForm() {
     });
     return () => unsubscribe();
   }, [auth]);
+
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!isEditing || !productId || !currentUser) return;
+
+      try {
+        const productRef = doc(db, 'products', productId);
+        const productSnap = await getDoc(productRef);
+
+        if (productSnap.exists()) {
+          const productData = productSnap.data() as Product;
+          // Verify ownership
+          if (productData.sellerId !== currentUser.uid) {
+            router.push('/products');
+            return;
+          }
+          
+          setTitle(productData.title);
+          setDescription(productData.description);
+          setCurrentPrice(productData.currentPrice.toString());
+          setMinimumPrice(productData.minimumPrice.toString());
+          setEndDate(new Date(productData.endDate).toISOString().split('T')[0]);
+          setCommunities(productData.communities || []);
+          setImagePreview(productData.imageUrl);
+        }
+      } catch (err) {
+        console.error('Error fetching product:', err);
+        setStatus('Failed to fetch product data');
+      }
+    };
+
+    fetchProduct();
+  }, [isEditing, productId, currentUser, db, router]);
 
   if (!currentUser) {
     return (
@@ -60,67 +97,83 @@ export default function CreateProductForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!title || !description || !currentPrice || !minimumPrice || !endDate || !imageFile) {
+  
+    if (!title || !description || !currentPrice || !minimumPrice || !endDate || (!imageFile && !isEditing)) {
       setStatus('Please fill in all fields');
       return;
     }
-
+  
     if (parseFloat(minimumPrice) > parseFloat(currentPrice)) {
       setStatus('Minimum price cannot be higher than current price');
       return;
     }
-
+  
     const endDateTime = new Date(endDate).getTime();
     if (endDateTime <= Date.now()) {
       setStatus('End date must be in the future');
       return;
     }
-
+  
     setStatus('Uploading...');
     
-    const formData = new FormData();
-    formData.append('file', imageFile);
-    formData.append('upload_preset', 'listings');
-
     try {
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dxzkav00b/image/upload`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
-      const data = await response.json();
-      const imageUrl = data.secure_url;
-
+      let imageUrl = imagePreview;
+  
+      // Only upload new image if file is selected
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('file', imageFile);
+        formData.append('upload_preset', 'listings');
+  
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/dxzkav00b/image/upload`,
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
+        const data = await response.json();
+        imageUrl = data.secure_url;
+      }
+  
       const productData = {
         title,
         description,
-        listedPrice: parseFloat(currentPrice),    // Store original price
-        currentPrice: parseFloat(currentPrice),    // Start with same price
+        listedPrice: parseFloat(currentPrice),
+        currentPrice: parseFloat(currentPrice),
         minimumPrice: parseFloat(minimumPrice),
         endDate: endDateTime,
         imageUrl,
-        sellerId: currentUser.uid,
-        sellerEmail: currentUser.email!,
-        createdAt: Date.now(),
-        communities: communities,
-        is_bought: false, 
+        communities,
+        updatedAt: Date.now(),
       };
-
-      await addDoc(collection(db, 'products'), productData);
-      setStatus('Product created successfully!');
-      
+  
+      if (isEditing && productId) {
+        // Update existing product
+        const productRef = doc(db, 'products', productId);
+        await updateDoc(productRef, productData);
+        setStatus('Product updated successfully!');
+      } else {
+        // Create new product
+        await addDoc(collection(db, 'products'), {
+          ...productData,
+          sellerId: currentUser.uid,
+          sellerEmail: currentUser.email!,
+          createdAt: Date.now(),
+          is_bought: false,
+        });
+        setStatus('Product created successfully!');
+      }
+  
       setTimeout(() => {
-        router.push('/products');
+        router.push(isEditing ? `/products/${productId}` : '/products');
       }, 1500);
     } catch (error: Error | unknown) {
       if (error instanceof Error) {
-        console.error('Error updating price:', error.message);
+        console.error('Error updating product:', error.message);
         setStatus(`Error: ${error.message}`);
       } else {
-        console.error('Unknown error updating price:', error);
+        console.error('Unknown error:', error);
       }
     }
   };
@@ -198,7 +251,7 @@ export default function CreateProductForm() {
             accept="image/*"
             onChange={handleImageChange}
             className="w-full p-3 border rounded-lg text-black"
-            required
+            required={!isEditing}
           />
           {imagePreview && (
             <img
@@ -234,7 +287,7 @@ export default function CreateProductForm() {
           type="submit"
           className="w-full p-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
         >
-          List Item for Sale
+          {isEditing ? 'Update Listing' : 'List Item for Sale'}
         </button>
       </form>
 

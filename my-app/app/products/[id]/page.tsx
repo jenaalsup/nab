@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useFirebase } from '../../../contexts/FirebaseContext';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
 import type { Product } from '../../../types/product';
 import Navbar from '../../components/Navbar';
@@ -12,6 +13,7 @@ export default function ProductPage() {
   const { id } = useParams();
   const { db } = useFirebase();
   const { currentUser } = useAuth();
+  const router = useRouter(); 
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState('');
   const [purchaseStatus, setPurchaseStatus] = useState('');
@@ -76,6 +78,23 @@ export default function ProductPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!product || !currentUser || product.sellerId !== currentUser.uid) return;
+  
+    try {
+      const productRef = doc(db, 'products', id as string);
+      await deleteDoc(productRef);
+      router.push('/profile'); // Redirect to profile after deletion
+    } catch (err) {
+      console.error('Failed to delete product:', err);
+      setError('Failed to delete product.');
+    }
+  };
+  
+  const handleEdit = () => {
+    router.push(`/create?edit=true&productId=${id}`);
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-4">
               <Navbar />
@@ -100,13 +119,36 @@ export default function ProductPage() {
       <p className="text-sm text-gray-500 mt-2">
         Posted by: {product.sellerEmail}
       </p>
-      {product && !product.is_bought && currentUser && product.sellerId !== currentUser.uid && (
-        <button
-          onClick={handlePurchase}
-          className="mt-6 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-        >
-          Purchase for ${(product.currentPrice || 0).toFixed(2)}
-        </button>
+      {product && currentUser && (
+        <div className="mt-6 space-y-4">
+          {product.sellerId === currentUser.uid ? (
+            // Show edit/delete buttons for product owner
+            <div className="flex gap-4">
+              <button
+                onClick={handleEdit}
+                className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Edit Listing
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Delete Listing
+              </button>
+            </div>
+          ) : (
+            // Show purchase button for non-owners
+            !product.is_bought && (
+              <button
+                onClick={handlePurchase}
+                className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              >
+                Purchase for ${(product.currentPrice || 0).toFixed(2)}
+              </button>
+            )
+          )}
+        </div>
       )}
 
       {product?.is_bought && (
