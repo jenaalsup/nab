@@ -12,4 +12,6 @@ export interface Product {
   createdAt: number;
   communities: string[];
   is_bought: boolean; 
+  buyerId?: string;
+  buyerEmail?: string;
 }

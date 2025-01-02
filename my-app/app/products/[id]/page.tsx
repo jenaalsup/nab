@@ -60,10 +60,12 @@ export default function ProductPage() {
         setPurchaseStatus('You cannot purchase your own item.');
         return;
       }
-
+      
       const productRef = doc(db, 'products', id as string);
       await updateDoc(productRef, {
-        is_bought: true
+        is_bought: true,
+        buyerId: currentUser.uid,
+        buyerEmail: currentUser.email
       });
 
       setProduct({
