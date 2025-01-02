@@ -74,52 +74,28 @@ const Testimonials = () => (
 
 const Steps = () => (
   <section className="container mx-auto px-4 py-32 bg-white">
-    <h2 className="text-3xl md:text-4xl font-bold text-center mb-24">how it works</h2>
-    <div className="max-w-3xl mx-auto space-y-24">
+    <h2 className="text-3xl md:text-4xl font-bold  mb-12">how it works</h2>
+    <div className="max-w-3xl mx-auto space-y-8">
       {[
         {
           number: "01",
-          title: "Sign Up",
+          title: "sign up",
           desc: "Create your account with your .edu email",
-          details: [
-            "Verify your student status instantly",
-            "Set up your profile and preferences",
-            "Connect with students at your campus"
-          ],
-          accent: "→"
         },
         {
           number: "02",
-          title: "List or Browse",
+          title: "list or browse",
           desc: "Post items or browse what's available",
-          details: [
-            "AI-powered pricing suggestions",
-            "Quick listing with smart categories",
-            "Filter by campus, price, and condition"
-          ],
-          accent: "↓"
         },
         {
           number: "03",
-          title: "Connect",
+          title: "connect",
           desc: "Chat with sellers/buyers on campus",
-          details: [
-            "Secure in-app messaging",
-            "Schedule meetups easily",
-            "Share availability and location"
-          ],
-          accent: "←"
         },
         {
           number: "04",
-          title: "Nab It",
+          title: "nab it",
           desc: "Meet up and complete the transaction",
-          details: [
-            "Safe campus meetup spots",
-            "Secure payment processing",
-            "Rate your experience"
-          ],
-          accent: "✓"
         }
       ].map((step, index) => (
         <motion.div
@@ -127,27 +103,15 @@ const Steps = () => (
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex gap-8 items-start group"
+          className="flex gap-4 items-start group"
         >
           <div className="flex-shrink-0 w-24 pt-2">
             <div className="text-sm font-mono text-[#00693E] font-bold">{step.number}</div>
           </div>
           <div className="flex-grow">
-            <div className="flex items-center gap-4 mb-4">
-              <h3 className="text-2xl font-bold">{step.title}</h3>
-              <span className="text-[#00693E] opacity-30 group-hover:opacity-100 transition-opacity">
-                {step.accent}
-              </span>
-            </div>
-            <p className="text-gray-600 text-lg mb-6">{step.desc}</p>
-            <ul className="space-y-3">
-              {step.details.map((detail, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <span className="w-1 h-1 rounded-full bg-[#00693E]" />
-                  <span className="text-gray-600">{detail}</span>
-                </li>
-              ))}
-            </ul>
+
+            <h3 className="text-xl font-bold">{step.title}</h3>
+            <p className="text-gray-600 text-lg mb-2">{step.desc}</p>
           </div>
         </motion.div>
       ))}
@@ -161,23 +125,24 @@ export default function Home() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-32 pb-32">
+      <section className="container mx-auto px-4 pt-36 pb-36">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <div className="inline-block px-4 py-2 bg-[#00693E]/5 rounded-full text-sm mb-8 text-[#00693E]">
+                    <div className="inline-block px-4 py-2 bg-[#00693E]/5 rounded-full text-lg mb-8 text-[#00693E]">
             🎉 now live at nyu, harvard, and caltech
           </div>
+
+          <h1 className="text-5xl md:text-6xl font-bold mb-8 text-black tracking-tight leading-loose">
+            get that bag <br></br> (and the couch, and the toaster too)          </h1>
           
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-black tracking-tight leading-normal">
-          get rock bottom deals &<br></br>save the goods on the curb
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto">
-           buy, sell, liquidate, and donate your stuff on nab            
-          <br />no fees, no hassle, just deals
+          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto ">
+         you drop it, we price it, you profit
+         {/* no fees, no hassle, just deals! */}
+           {/* no fees, no hassle, just deals */}
           </p>
           
           <Link href="/signup" className="group">
@@ -187,16 +152,21 @@ export default function Home() {
               className="px-8 py-4 bg-black text-white rounded-lg tracking-wide
                          transition-all duration-300
 "            >
-              start nabbing
+              Start Nabbing
             </motion.button>
           </Link>
+
+
         </motion.div>
+
+        <img src="./couch.png" alt="hero" className="w-[55%] h-auto m-auto" />
+
       </section>
 
       {/* How it Works Section */}
-      <section className="bg-white py-32">
+      <section className="bg-white py-16">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto space-y-24">
+          <div className="max-w-3xl mx-auto space-y-4">
             <Steps />
           </div>
         </div>
@@ -251,29 +221,29 @@ export default function Home() {
       <Testimonials />
 
       {/* Final CTA Section */}
-      <section className="container mx-auto px-4 py-32">
+      <section className="container mx-auto px-4  max-w-5xl my-20 py-32 bg-[#ffffff] border border-gray-100 rounded-lg">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center max-w-3xl mx-auto"
+          className="text-center max-w-3xl mx-auto "
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-black tracking-tight">
-            ready to start nabbing?
+            get your bag and nab some swag
           </h2>
           <p className="text-xl text-gray-600 mb-12">
-            join thousands of students already saving money and making extra cash on campus
+            join thousands selling their stuff and nabbing the hottest deals on campus
           </p>
           
           <Link href="/signup" className="group">
             <motion.button 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="px-8 py-4 bg-black text-white font-bold rounded-lg 
+              className="px-8 py-4 bg-black text-white rounded-lg 
                          transition-all duration-300
-                         shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]"
+                       "
             >
-              get early access →
+              get early access
             </motion.button>
           </Link>
         </motion.div>
