@@ -15,11 +15,10 @@ const Navbar = () => (
   </nav>
 )
 
-const Testimonial = ({ quote, name, school, imageId }: {
+const Testimonial = ({ quote, name, school }: {
   quote: string;
   name: string;
   school: string;
-  imageId: number;
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -36,7 +35,7 @@ const Testimonial = ({ quote, name, school, imageId }: {
         <div className="text-gray-500 text-sm">{school}</div>
       </div>
     </div>
-    <p className="text-gray-600">"{quote}"</p>
+    <p className="text-gray-600">&quot;{quote}&quot;</p>
   </motion.div>
 )
 
