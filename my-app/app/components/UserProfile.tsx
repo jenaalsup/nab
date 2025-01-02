@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFirebase } from '../../contexts/FirebaseContext';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import type { User } from '@/types/user';
 import { useRouter } from 'next/navigation';
+import ProductCard from './ProductCard';
+import type { Product } from '../../types/product';
 
 const UserProfile = () => {
   const { currentUser, signOutUser } = useAuth();
@@ -14,6 +16,8 @@ const UserProfile = () => {
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'profile' | 'active' | 'sold'>('profile');
+  const [userProducts, setUserProducts] = useState<Product[]>([]);
 
 
   const handleSignOut = async () => {
@@ -21,7 +25,7 @@ const UserProfile = () => {
     router.push('/login');
   };
 
-
+  // fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
       if (!currentUser) {
@@ -43,6 +47,27 @@ const UserProfile = () => {
     };
 
     fetchUserData();
+  }, [currentUser, db]);
+
+  // fetch user products
+  useEffect(() => {
+    if (!currentUser) return;
+  
+    const q = query(
+      collection(db, 'products'),
+      where('sellerId', '==', currentUser.uid),
+      orderBy('createdAt', 'desc')
+    );
+  
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const products = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Product[];
+      setUserProducts(products);
+    });
+  
+    return () => unsubscribe();
   }, [currentUser, db]);
 
   if (!currentUser) {
@@ -73,63 +98,115 @@ const UserProfile = () => {
     router.push('/onboarding?edit=true');
   };
 
+  const activeListings = userProducts.filter(product => !product.is_bought);
+  const soldListings = userProducts.filter(product => product.is_bought);
+
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <img 
-          src={userData?.photoURL || currentUser?.photoURL || "/images/profile.png"} 
-          alt="profile" 
-          width={100} 
-          height={100} 
-          className="rounded-full"
-        />
-        <button
-          onClick={handleEditProfile}
-          className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-        >
-          Edit Profile
+    <div className="w-full max-w-4xl mx-auto p-4">
+      {/* Profile Header - Always Visible */}
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-6">
+          <img 
+            src={userData?.photoURL || currentUser?.photoURL || "/images/profile.png"} 
+            alt="profile" 
+            width={100} 
+            height={100} 
+            className="rounded-full"
+          />
+          <button
+            onClick={handleEditProfile}
+            className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+          >
+            Edit Profile
+          </button>
+        </div>
+  
+        <h1 className="text-2xl font-bold">{userData?.displayName || currentUser.displayName}</h1>
+        <p className="text-gray-600">{userData?.email || currentUser.email}</p>
+        
+        {userData?.bio && (
+          <div className="mt-4">
+            <h2 className="font-semibold">Bio</h2>
+            <p>{userData.bio}</p>
+          </div>
+        )}
+        
+        {userData?.location && (
+          <div className="mt-4">
+            <h2 className="font-semibold">Location</h2>
+            <p>{userData.location}</p>
+          </div>
+        )}
+        
+        {userData?.interests && userData.interests.length > 0 && (
+          <div className="mt-4">
+            <h2 className="font-semibold">Interests</h2>
+            <ul className="list-disc list-inside">
+              {userData.interests.map((interest: string) => (
+                <li key={interest}>{interest}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+  
+        {userData?.communities && userData.communities.length > 0 && (
+          <div className="mt-4">
+            <h2 className="font-semibold">Communities</h2>
+            <ul className="list-disc list-inside">
+              {userData.communities.map((community: string) => (
+                <li key={community}>{community}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+  
+        <button onClick={handleSignOut} className="mt-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+          Sign Out
         </button>
       </div>
-      <h1 className="text-2xl font-bold p-2">{userData?.displayName || currentUser.displayName}</h1>
-      <p className="p-2">{userData?.email || currentUser.email}</p>
-      
-      {userData?.bio && (
-        <div className="p-2">
-          <h2 className="font-semibold">Bio</h2>
-          <p>{userData.bio}</p>
+  
+      {/* Tabs */}
+      <div className="mt-8 border-t pt-6">
+        <div className="flex border-b mb-6">
+          <button
+            className={`px-6 py-3 ${activeTab === 'active' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+            onClick={() => setActiveTab('active')}
+          >
+            Active Listings ({activeListings.length})
+          </button>
+          <button
+            className={`px-6 py-3 ${activeTab === 'sold' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+            onClick={() => setActiveTab('sold')}
+          >
+            Archive ({soldListings.length})
+          </button>
         </div>
-      )}
-      
-      {userData?.location && (
-        <div className="p-2">
-          <h2 className="font-semibold">Location</h2>
-          <p>{userData.location}</p>
-        </div>
-      )}
-      
-      {userData?.interests && userData.interests.length > 0 && (
-        <div className="p-2">
-          <h2 className="font-semibold">Interests</h2>
-          <ul className="list-disc list-inside">
-            {userData.interests.map((interest: string) => (
-              <li key={interest}>{interest}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {userData?.communities && userData.communities.length > 0 && (
-        <div className="p-2">
-          <h2 className="font-semibold">Communities</h2>
-          <ul className="list-disc list-inside">
-            {userData.communities.map((community: string) => (
-              <li key={community}>{community}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <button onClick={handleSignOut} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Sign Out</button>
+  
+        {/* Tab Content */}
+        {activeTab === 'active' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {activeListings.length > 0 ? (
+              activeListings.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            ) : (
+              <p className="text-gray-500 col-span-2 text-center">No active listings</p>
+            )}
+          </div>
+        )}
+  
+        {activeTab === 'sold' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {soldListings.length > 0 ? (
+              soldListings.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            ) : (
+              <p className="text-gray-500 col-span-2 text-center">No sold items</p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
