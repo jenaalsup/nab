@@ -5,11 +5,20 @@ import { useFirebase } from '../../contexts/FirebaseContext';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import ProductCard from './ProductCard';
 import type { Product } from '../../types/product';
+import Select from 'react-select';
 
 export default function ProductList() {
   const { db } = useFirebase();
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [selectedCommunities, setSelectedCommunities] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const availableCommunities = [
+    { value: 'Caltech', label: 'Caltech' },
+    { value: 'NYU', label: 'NYU' },
+    { value: 'Impact Labs', label: 'Impact Labs' }
+  ];
 
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
@@ -20,10 +29,24 @@ export default function ProductList() {
         ...doc.data()
       })) as Product[];
       setProducts(productList);
+      setFilteredProducts(productList);
     });
 
     return () => unsubscribe();
   }, [db]);
+
+  useEffect(() => {
+    if (selectedCommunities.length === 0) {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter(product => 
+        product.communities?.some(community => 
+          selectedCommunities.includes(community)
+        )
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [selectedCommunities, products]);
 
   useEffect(() => {
     const handleScroll = (e: WheelEvent) => {
@@ -47,13 +70,32 @@ export default function ProductList() {
 
   return (
     <div className="relative w-full">
+      <div className="mb-6 px-4">
+        <Select
+          isMulti
+          name="communities"
+          options={availableCommunities}
+          className="w-full max-w-md mx-auto"
+          value={availableCommunities.filter(option => 
+            selectedCommunities.includes(option.value)
+          )}
+          onChange={(selectedOptions) => {
+            setSelectedCommunities(
+              selectedOptions
+                ? selectedOptions.map(option => option.value)
+                : []
+            );
+          }}
+          placeholder="Filter by community..."
+        />
+      </div>
       <div 
         ref={containerRef}
         className="w-full overflow-x-auto h-[calc(100vh-300px)] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
         style={{ paddingBottom: '100px' }}
       >
         <div className="flex space-x-4 p-4 min-w-max" style={{ marginBottom: '60px' }}>
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <div key={product.id} className="flex-none w-96">
               <ProductCard product={product} />
             </div>
