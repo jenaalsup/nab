@@ -10,7 +10,7 @@ import ProductCard from './ProductCard';
 import type { Product } from '../../types/product';
 import Link from 'next/link';
 
-const UserProfile = () => {
+const UserProfile = ({ userId = null }: { userId?: string | null }) => {
   const { currentUser, signOutUser } = useAuth();
   const { db } = useFirebase();
   const router = useRouter();
@@ -21,6 +21,8 @@ const UserProfile = () => {
   const [userProducts, setUserProducts] = useState<Product[]>([]);
   const [purchasedProducts, setPurchasedProducts] = useState<Product[]>([]);
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
+  const targetUserId = userId || currentUser?.uid;
+  const isOwnProfile = !userId || userId === currentUser?.uid;
 
   const handleSignOut = async () => {
     await signOutUser();
@@ -30,13 +32,13 @@ const UserProfile = () => {
   // fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!currentUser) {
+      if (!targetUserId) {
         setLoading(false);
         return;
       }
-
+  
       try {
-        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        const userDoc = await getDoc(doc(db, 'users', targetUserId));
         if (userDoc.exists()) {
           setUserData(userDoc.data() as User);
         }
@@ -47,17 +49,17 @@ const UserProfile = () => {
         setLoading(false);
       }
     };
-
+  
     fetchUserData();
-  }, [currentUser, db]);
+  }, [db, targetUserId]);
 
   // fetch user products
   useEffect(() => {
-    if (!currentUser) return;
+    if (!targetUserId) return;
   
     const q = query(
       collection(db, 'products'),
-      where('sellerId', '==', currentUser.uid),
+      where('sellerId', '==', targetUserId),
       orderBy('createdAt', 'desc')
     );
   
@@ -70,7 +72,7 @@ const UserProfile = () => {
     });
   
     return () => unsubscribe();
-  }, [currentUser, db]);
+  }, [db, targetUserId]);
 
   // fetch purchased products
   useEffect(() => {
@@ -181,7 +183,7 @@ const UserProfile = () => {
         </p>
 
       )}
-
+  </div>
 
 {/* Additional Info */}
 <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2 mb-6 text-gray-800">
@@ -226,25 +228,22 @@ const UserProfile = () => {
   )}
 </div>
 
-
-
-
-      {/* Edit Profile & Sign Out */}
-      <div className="mt-4 flex flex-col md:flex-row items-center gap-4">
-        <button
-          onClick={handleEditProfile}
-          className="px-4 text-sm py-2 border border-gray-300 rounded hover:bg-gray-200"
-        >
-          Edit Profile
-        </button>
-        <button
-          onClick={handleSignOut}
-          className="px-4 text-sm py-2 border border-gray-300 rounded hover:bg-gray-200"
-        >
-          Sign Out
-        </button>
-      </div>
+  {isOwnProfile && (
+    <div className="mt-4 flex flex-col md:flex-row items-center gap-4">
+      <button
+        onClick={handleEditProfile}
+        className="px-4 text-sm py-2 border border-gray-300 rounded hover:bg-gray-200"
+      >
+        Edit Profile
+      </button>
+      <button
+        onClick={handleSignOut}
+        className="px-4 text-sm py-2 border border-gray-300 rounded hover:bg-gray-200"
+      >
+        Sign Out
+      </button>
     </div>
+  )}
 
 
     {/* Tabs Section */}
@@ -294,29 +293,54 @@ const UserProfile = () => {
       </div>
 
       {activeTab === 'active' && (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {activeListings.length > 0 ? (
-          activeListings.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))
-        ) : (
-          <p className="col-span-2 text-gray-500 text-center mt-12">
-            No active listings
-          </p>
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {activeListings.length > 0 ? (
+            activeListings.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          ) : (
+            <p className="col-span-2 text-gray-500 text-center mt-12">
+              No active listings
+            </p>
+          )}
 
-        {/* Centered Add Listing Button */}
-        <div className="col-span-full flex justify-center">
-          <Link
-            href="/create"
-            className="px-4 py-2 border text-sm border-gray-300 rounded hover:bg-gray-200"
-          >
-            Add Listing
-          </Link>
+          {/* Centered Add Listing Button - Only show for own profile */}
+          {isOwnProfile && (
+            <div className="col-span-full flex justify-center">
+              <Link
+                href="/create"
+                className="px-4 py-2 border text-sm border-gray-300 rounded hover:bg-gray-200"
+              >
+                Add Listing
+              </Link>
+            </div>
+          )}
         </div>
-      </div>
-    )}
+      )}
 
+      {activeTab === 'sold' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {soldListings.length > 0 ? (
+            soldListings.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          ) : (
+            <p className="text-gray-500 col-span-2 text-center mt-12">No sold items</p>
+          )}
+          
+          {/* Centered Add Listing Button - Only show for own profile */}
+          {isOwnProfile && (
+            <div className="col-span-full flex justify-center">
+              <Link
+                href="/create"
+                className="px-4 py-2 border text-sm border-gray-300 rounded hover:bg-gray-200"
+              >
+                Add Listing
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
 
       {activeTab === 'sold' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

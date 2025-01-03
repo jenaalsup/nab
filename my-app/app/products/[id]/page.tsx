@@ -9,6 +9,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import type { Product } from '../../../types/product';
 import Navbar from '../../components/Navbar';
 import { User } from '../../../types/user';
+import Link from 'next/link';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -19,7 +20,8 @@ export default function ProductPage() {
   const [error, setError] = useState('');
   const [purchaseStatus, setPurchaseStatus] = useState('');
   const [userData, setUserData] = useState<User | null>(null);
-
+  const [sellerData, setSellerData] = useState<User | null>(null);
+  
   useEffect(() => {
     if (!id) {
       setError('Invalid product ID.');
@@ -58,6 +60,23 @@ export default function ProductPage() {
   
     return () => unsubscribe();
   }, [currentUser, db]);
+
+  useEffect(() => {
+    const fetchSellerData = async () => {
+      if (!product?.sellerId) return;
+      
+      try {
+        const userDoc = await getDoc(doc(db, 'users', product.sellerId));
+        if (userDoc.exists()) {
+          setSellerData(userDoc.data() as User);
+        }
+      } catch (err) {
+        console.error('Error fetching seller data:', err);
+      }
+    };
+
+    fetchSellerData();
+  }, [db, product?.sellerId]);
 
   if (error) return <p className="text-red-500">{error}</p>;
   if (!product) return <p>Loading...</p>;
@@ -178,9 +197,12 @@ export default function ProductPage() {
       <p className="text-sm text-gray-500 mt-2">
         Minimum Price: ${(product.minimumPrice || 0).toFixed(2)}
       </p>
-      <p className="text-sm text-gray-500 mt-2">
-        Posted by: {product.sellerEmail}
-      </p>
+      <Link 
+        href={`/profile/${product.sellerId}`} 
+        className="text-sm text-gray-500 hover:text-gray-700 mt-2"
+      >
+        Posted by: {sellerData?.displayName || product.sellerEmail}
+      </Link>
       {product && currentUser && (
         <div className="mt-6 space-y-4">
           {product.sellerId === currentUser.uid ? (

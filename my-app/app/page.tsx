@@ -154,8 +154,8 @@ export default function Home() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="px-8 py-4 bg-black text-white rounded-lg tracking-wide
-                         transition-all duration-300
-"            >
+                         transition-all duration-300 mb-4"
+          >
               start nabbing
             </motion.button>
           </Link>
