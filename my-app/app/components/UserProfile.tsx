@@ -8,6 +8,7 @@ import type { User } from '@/types/user';
 import { useRouter } from 'next/navigation';
 import ProductCard from './ProductCard';
 import type { Product } from '../../types/product';
+import Link from 'next/link';
 
 const UserProfile = () => {
   const { currentUser, signOutUser } = useAuth();
@@ -16,7 +17,7 @@ const UserProfile = () => {
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'profile' | 'active' | 'sold' | 'purchases' | 'wishlist'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'active' | 'sold' | 'purchases' | 'wishlist'>('active');
   const [userProducts, setUserProducts] = useState<Product[]>([]);
   const [purchasedProducts, setPurchasedProducts] = useState<Product[]>([]);
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
@@ -155,159 +156,223 @@ const UserProfile = () => {
   const soldListings = userProducts.filter(product => product.is_bought);
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      {/* Profile Header - Always Visible */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <img 
-            src={userData?.photoURL || currentUser?.photoURL || "/images/profile.png"} 
-            alt="profile" 
-            width={100} 
-            height={100} 
-            className="rounded-full"
-          />
-          <button
-            onClick={handleEditProfile}
-            className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+  <div className="w-full max-w-4xl mx-auto p-4">
+    {/* Profile Header */}
+    <div className="flex flex-col items-center mb-8">
+      {/* Profile Picture */}
+      <img
+        src={userData?.photoURL || currentUser?.photoURL || "/images/profile.png"}
+        alt="profile"
+        className="rounded-full w-32 h-32 md:w-40 md:h-40 object-cover"
+      />
+
+      {/* Name & Email */}
+      <h1 className="text-xl md:text-2xl font-bold mt-4 text-center">
+        {userData?.displayName || currentUser.displayName}
+      </h1>
+      <p className="text-gray-600 text-sm md:text-base">
+        {userData?.email || currentUser.email}
+      </p>
+
+      {/* Optional Bio */}
+      {userData?.bio && (
+        <p className="mt-4 text-center max-w-lg text-gray-700 mb-6">
+          {userData.bio}
+        </p>
+
+      )}
+
+
+{/* Additional Info */}
+<div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2 mb-6 text-gray-800">
+  {/* Location */}
+  {userData?.location && (
+    <div className="flex items-center gap-2">
+      <span className="text-sm"> </span>
+      <span className="">{userData.location}</span>
+    </div>
+  )}
+  <span className="">•</span>
+  {/* Interests */}
+  {userData?.interests && userData.interests.length > 0 && (
+    <div className="flex items-center gap-2">
+      <div className="flex flex-wrap gap-2">
+        {userData.interests.map((interest) => (
+          <span
+            key={interest}
+            className="px-2 py-1 bg-gray-100 rounded-full text-gray-600"
           >
-            Edit Profile
-          </button>
-        </div>
-  
-        <h1 className="text-2xl font-bold">{userData?.displayName || currentUser.displayName}</h1>
-        <p className="text-gray-600">{userData?.email || currentUser.email}</p>
-        
-        {userData?.bio && (
-          <div className="mt-4">
-            <h2 className="font-semibold">Bio</h2>
-            <p>{userData.bio}</p>
-          </div>
-        )}
-        
-        {userData?.location && (
-          <div className="mt-4">
-            <h2 className="font-semibold">Location</h2>
-            <p>{userData.location}</p>
-          </div>
-        )}
-        
-        {userData?.interests && userData.interests.length > 0 && (
-          <div className="mt-4">
-            <h2 className="font-semibold">Interests</h2>
-            <ul className="list-disc list-inside">
-              {userData.interests.map((interest: string) => (
-                <li key={interest}>{interest}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-  
-        {userData?.communities && userData.communities.length > 0 && (
-          <div className="mt-4">
-            <h2 className="font-semibold">Communities</h2>
-            <ul className="list-disc list-inside">
-              {userData.communities.map((community: string) => (
-                <li key={community}>{community}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-  
-        <button onClick={handleSignOut} className="mt-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+            {interest}
+          </span>
+        ))}
+      </div>
+    </div>
+  )}
+    <span className="">•</span>
+    {/* Communities */}
+    {userData?.communities && userData.communities.length > 0 && (
+    <div className="flex items-center gap-2">
+      <div className="flex flex-wrap gap-2">
+        {userData.communities.map((community) => (
+          <span
+            key={community}
+            className="px-2 py-1 text-underline text-gray-600"
+          >
+            {community}
+          </span>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+
+
+
+
+      {/* Edit Profile & Sign Out */}
+      <div className="mt-4 flex flex-col md:flex-row items-center gap-4">
+        <button
+          onClick={handleEditProfile}
+          className="px-4 text-sm py-2 border border-gray-300 rounded hover:bg-gray-200"
+        >
+          Edit Profile
+        </button>
+        <button
+          onClick={handleSignOut}
+          className="px-4 text-sm py-2 border border-gray-300 rounded hover:bg-gray-200"
+        >
           Sign Out
         </button>
       </div>
-  
-      {/* Tabs */}
-      <div className="mt-8 border-t pt-6">
-        <div className="flex border-b mb-6">
-          <button
-            className={`px-6 py-3 ${activeTab === 'active' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('active')}
-          >
-            Active Listings ({activeListings.length})
-          </button>
-          <button
-            className={`px-6 py-3 ${activeTab === 'sold' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('sold')}
-          >
-            Archive ({soldListings.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('purchases')}
-            className={`px-4 py-2 rounded ${
-              activeTab === 'purchases' 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300'
-            }`}
-          >
-            Purchases ({purchasedProducts.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('wishlist')}
-            className={`px-4 py-2 rounded ${
-              activeTab === 'wishlist' 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300'
-            }`}
-          >
-            Wishlist ({wishlistProducts.length})
-          </button>
-        </div>
-  
-        {/* Tab Content */}
-        {activeTab === 'active' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {activeListings.length > 0 ? (
-              activeListings.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))
-            ) : (
-              <p className="text-gray-500 col-span-2 text-center">No active listings</p>
-            )}
-          </div>
-        )}
-  
-        {activeTab === 'sold' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {soldListings.length > 0 ? (
-              soldListings.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))
-            ) : (
-              <p className="text-gray-500 col-span-2 text-center">No sold items</p>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'purchases' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {purchasedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-            {purchasedProducts.length === 0 && (
-              <p className="text-gray-500 col-span-full text-center">
-                You have not purchased any items yet.
-              </p>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'wishlist' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {wishlistProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-            {wishlistProducts.length === 0 && (
-              <p className="text-gray-500 col-span-full text-center">
-                Your wishlist is empty.
-              </p>
-            )}
-          </div>
-        )}
-      </div>
     </div>
-  );
+
+
+    {/* Tabs Section */}
+    <div className="border-t pt-6">
+      {/* Tab Buttons */}
+      <div className="flex flex-wrap justify-center items-center gap-4 mb-6">
+        <button
+          className={`px-6 py-3 ${
+            activeTab === 'active'
+              ? 'border-b-2 border-blue-500 text-blue-500'
+              : 'text-gray-500'
+          }`}
+          onClick={() => setActiveTab('active')}
+        >
+          Active Listings ({activeListings.length})
+        </button>
+        <button
+          className={`px-6 py-3 ${
+            activeTab === 'sold'
+              ? 'border-b-2 border-blue-500 text-blue-500'
+              : 'text-gray-500'
+          }`}
+          onClick={() => setActiveTab('sold')}
+        >
+          Archive ({soldListings.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('purchases')}
+          className={`px-6 py-3 ${
+            activeTab === 'purchases'
+              ? 'border-b-2 border-blue-500 text-blue-500'
+              : 'text-gray-500'
+          }`}
+        >
+          Purchases ({purchasedProducts.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('wishlist')}
+          className={`px-6 py-3 ${
+            activeTab === 'wishlist'
+              ? 'border-b-2 border-blue-500 text-blue-500'
+              : 'text-gray-500'
+          }`}
+        >
+          Wishlist ({wishlistProducts.length})
+        </button>
+      </div>
+
+      {activeTab === 'active' && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {activeListings.length > 0 ? (
+          activeListings.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))
+        ) : (
+          <p className="col-span-2 text-gray-500 text-center mt-12">
+            No active listings
+          </p>
+        )}
+
+        {/* Centered Add Listing Button */}
+        <div className="col-span-full flex justify-center">
+          <Link
+            href="/create"
+            className="px-4 py-2 border text-sm border-gray-300 rounded hover:bg-gray-200"
+          >
+            Add Listing
+          </Link>
+        </div>
+      </div>
+    )}
+
+
+      {activeTab === 'sold' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {soldListings.length > 0 ? (
+            soldListings.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          ) : (
+            <p className="text-gray-500 col-span-2 text-center mt-12">No sold items</p>
+          )}
+
+          
+        {/* Centered Add Listing Button */}
+        <div className="col-span-full flex justify-center">
+          <Link
+            href="/create"
+            className="px-4 py-2 border text-sm border-gray-300 rounded hover:bg-gray-200"
+          >
+            Add Listing
+          </Link>
+        </div>
+ 
+        </div>
+      )}
+
+      {activeTab === 'purchases' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {purchasedProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+          {purchasedProducts.length === 0 && (
+            <p className="text-gray-500 col-span-full text-center mt-12">
+              You have not purchased any items yet.
+            </p>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'wishlist' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {wishlistProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+          {wishlistProducts.length === 0 && (
+            <p className="text-gray-500 col-span-full text-center mt-12">
+              Your wishlist is empty.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+
+
 };
 
 export default UserProfile;
