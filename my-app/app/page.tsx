@@ -135,7 +135,7 @@ export default function Home() {
             🎉 now live at nyu, harvard, and caltech
           </div>
 
-          <h1 className="text-5xl md:text-6xl font-bold mb-8 text-black tracking-tight leading-loose">
+          <h1 className="text-4xl md:text-5xl font-bold mb-8 text-black tracking-tight">
             get that bag <br></br> (and the couch, and the toaster too)          </h1>
           
           <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto ">
@@ -149,7 +149,7 @@ export default function Home() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="px-8 py-4 bg-black text-white rounded-lg tracking-wide
-                         transition-all duration-300
+                         transition-all duration-300 mb-4
 "            >
               start nabbing
             </motion.button>
