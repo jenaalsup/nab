@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'; // Import useRouter
 import { Product } from '../../types/product';
 import { calculateCurrentPrice } from '../../utils/priceCalculator';
 import { useFirebase } from '../../contexts/FirebaseContext';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 interface ProductCardProps {
   product: Product;
@@ -26,6 +26,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   );
 
   const daysLeft = Math.ceil((product.endDate - Date.now()) / (1000 * 60 * 60 * 24));
+  const [sellerName, setSellerName] = useState<string>("");
 
   useEffect(() => {
     const updatePrice = async () => {
@@ -53,14 +54,24 @@ export default function ProductCard({ product }: ProductCardProps) {
     return () => clearInterval(interval);
   }, [product.id, product.listedPrice, product.minimumPrice, product.createdAt, product.endDate, db]);
 
+  useEffect(() => {
+    const fetchSellerName = async () => {
+      const userDoc = await getDoc(doc(db, 'users', product.sellerId));
+      if (userDoc.exists()) {
+        setSellerName(userDoc.data().displayName || product.sellerEmail);
+      }
+    };
+    fetchSellerName();
+  }, [db, product.sellerId, product.sellerEmail]);
+
   const handleCardClick = () => {
-    router.push(`/products/${product.id}`); // Navigate to the dynamic route
+    router.push(`/products/${product.id}`); 
   };
 
   return (
     <div
       className="w-full h-full border rounded-lg shadow-sm p-4 bg-white/5 cursor-pointer hover:translate-y-[-5px] transition-all duration-300"
-      onClick={handleCardClick} // Add click handler
+      onClick={handleCardClick} 
     >
       {product.is_bought && (
         <div className="absolute top-2 right-2 px-2 py-1 bg-gray-500 text-white rounded-full text-xs">
@@ -89,8 +100,8 @@ export default function ProductCard({ product }: ProductCardProps) {
         {daysLeft > 0 ? `${daysLeft} days left` : 'Listing ended'}
       </p>
       <p className="text-sm text-gray-500 mt-2">
-        Posted by: {product.sellerEmail}
-      </p>
+        Posted by: {sellerName || product.sellerEmail}
+      </p>  
       <div className="mt-2">
         {product.communities && product.communities.length > 0 && (
           <div className="flex flex-wrap gap-2">
