@@ -1,7 +1,6 @@
 "use client"
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { useRef, useEffect } from 'react'
 
 const Navbar = () => (
   <nav className="fixed w-full bg-white/80 backdrop-blur-sm z-50 border-b border-gray-100">
