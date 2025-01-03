@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import Navbar from '../components/Navbar';
 import ProductList from '../components/ProductList';
+import Link from 'next/link';
 
 export default function Products() {
   const { currentUser } = useAuth(); // Access global auth session
@@ -23,12 +24,20 @@ export default function Products() {
 
   return (
     <div>
-      
+
       <div className="max-w-[900px] m-auto max-h-screen">
         <Navbar />
-        <div className="flex flex-col gap-8 row-start-2 items-center">
-          <h1 className="text-4xl font-bold">PRODUCT LIST</h1>
-          <p>nab the best deals from your block</p>
+        <div className="flex flex-row justify-between items-center py-6">
+          <div className="flex flex-col">
+          <h1 className="text-2xl font-bold mb-2">Deals from your block</h1>
+          <p className="text-gray-500">Prices drop dynamically every day! Check back in to nab the best deals.</p>
+          </div>
+
+          <Link href="/create">
+            <button className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-200">
+              Add Listing
+            </button>
+          </Link>
         </div>
       </div>
 
