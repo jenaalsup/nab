@@ -46,16 +46,19 @@ export default function ProductList() {
   }, []);
 
   return (
-    <div 
-      ref={containerRef}
-      className="w-full overflow-x-hidden h-screen"
-    >
-      <div className="flex space-x-4 p-4">
-        {[...products, ...products, ...products].map((product, index) => (
-          <div key={`${product.id}-${index}`} className="flex-none w-72">
-            <ProductCard product={product} />
-          </div>
-        ))}
+    <div className="relative w-full">
+      <div 
+        ref={containerRef}
+        className="w-full overflow-x-auto h-[calc(100vh-300px)] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+        style={{ paddingBottom: '100px' }}
+      >
+        <div className="flex space-x-4 p-4 min-w-max" style={{ marginBottom: '60px' }}>
+          {products.map((product) => (
+            <div key={product.id} className="flex-none w-96">
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
