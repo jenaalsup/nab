@@ -25,11 +25,11 @@ export default function Products() {
   return (
     <div>
 
-      <div className="max-w-[900px] m-auto max-h-screen">
+      <div className="max-w-[900px] m-auto max-h-screen px-4">
         <Navbar />
         <div className="flex flex-row justify-between items-center py-6">
           <div className="flex flex-col">
-          <h1 className="text-2xl font-bold mb-2">Deals from your block</h1>
+          <h1 className="text-2xl font-bold mb-2">deals from your block</h1>
           <p className="text-gray-500">Prices drop dynamically every day! Check back in to nab the best deals.</p>
           </div>
 

@@ -7,12 +7,12 @@ export default function Navbar() {
     const { currentUser } = useAuth();
 
   return (
-    <nav className="py-6">
+    <nav className="py-6 m-2">
       <div className="container mx-auto flex justify-between items-center">
 
       <Link href="/products">
 
-        <h1 className="text-xl font-bold">nab</h1>
+        <h1 className="text-xl font-bold"><img src="./nab.svg" alt="nab" className="w-[60px] h-auto" /></h1>
         </Link>
 
           <div className="flex items-center gap-2">
