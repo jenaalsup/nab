@@ -56,3 +56,12 @@ p {
   transform: rotate(90deg);
   transform-origin: right top;
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

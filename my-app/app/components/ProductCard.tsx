@@ -70,7 +70,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <img
         src={product.imageUrl} 
         alt={product.title}
-        className="w-full h-full object-cover rounded-lg mb-4"
+        className="w-full aspect-square object-cover rounded-lg mb-4"
       />
       <h3 className="text-xl font-semibold">{product.title}</h3>
       <p className="text-gray-600 mt-2">{product.description}</p>

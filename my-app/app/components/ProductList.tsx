@@ -1,15 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import ProductCard from './ProductCard';
 import type { Product } from '../../types/product';
-import { div } from 'framer-motion/client';
+import Select from 'react-select';
 
 export default function ProductList() {
   const { db } = useFirebase();
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [selectedCommunities, setSelectedCommunities] = useState<string[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const availableCommunities = [
+    { value: 'Caltech', label: 'Caltech' },
+    { value: 'NYU', label: 'NYU' },
+    { value: 'Impact Labs', label: 'Impact Labs' }
+  ];
 
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
@@ -20,24 +29,79 @@ export default function ProductList() {
         ...doc.data()
       })) as Product[];
       setProducts(productList);
+      setFilteredProducts(productList);
     });
 
     return () => unsubscribe();
   }, [db]);
 
-  
+  useEffect(() => {
+    if (selectedCommunities.length === 0) {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter(product => 
+        product.communities?.some(community => 
+          selectedCommunities.includes(community)
+        )
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [selectedCommunities, products]);
+
+  useEffect(() => {
+    const handleScroll = (e: WheelEvent) => {
+      if (containerRef.current) {
+        e.preventDefault();
+        containerRef.current.scrollLeft += e.deltaY;
+      }
+    };
+
+    const element = containerRef.current;
+    if (element) {
+      element.addEventListener('wheel', handleScroll, { passive: false });
+    }
+
+    return () => {
+      if (element) {
+        element.removeEventListener('wheel', handleScroll);
+      }
+    };
+  }, []);
+
   return (
-    <div className="mx-auto my-20 px-12">
-        <div className="h-scroll w-[33%] h-screen" style={{ scrollBehavior: "smooth" }}>
-      {products.map((product) => (
-        <div key={product.id} className="">
-          <ProductCard product={product} />
+    <div className="relative w-full">
+      <div className="mb-6 px-4">
+        <Select
+          isMulti
+          name="communities"
+          options={availableCommunities}
+          className="w-full max-w-md mx-auto"
+          value={availableCommunities.filter(option => 
+            selectedCommunities.includes(option.value)
+          )}
+          onChange={(selectedOptions) => {
+            setSelectedCommunities(
+              selectedOptions
+                ? selectedOptions.map(option => option.value)
+                : []
+            );
+          }}
+          placeholder="Filter by community..."
+        />
+      </div>
+      <div 
+        ref={containerRef}
+        className="w-full overflow-x-auto h-[calc(100vh-300px)] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+        style={{ paddingBottom: '100px' }}
+      >
+        <div className="flex space-x-4 p-4 min-w-max" style={{ marginBottom: '60px' }}>
+          {filteredProducts.map((product) => (
+            <div key={product.id} className="flex-none w-96">
+              <ProductCard product={product} />
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
-  </div>
   );
-
 }
-
-
