@@ -20,8 +20,8 @@ export default function ProductPage() {
   const [error, setError] = useState('');
   const [purchaseStatus, setPurchaseStatus] = useState('');
   const [userData, setUserData] = useState<User | null>(null);
-  const [sellerData, setSellerData] = useState<any>(null); // Add this state
-
+  const [sellerData, setSellerData] = useState<User | null>(null);
+  
   useEffect(() => {
     if (!id) {
       setError('Invalid product ID.');
@@ -68,7 +68,7 @@ export default function ProductPage() {
       try {
         const userDoc = await getDoc(doc(db, 'users', product.sellerId));
         if (userDoc.exists()) {
-          setSellerData(userDoc.data());
+          setSellerData(userDoc.data() as User);
         }
       } catch (err) {
         console.error('Error fetching seller data:', err);
