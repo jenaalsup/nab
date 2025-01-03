@@ -271,7 +271,13 @@ export default function ProductPage() {
 
       {product?.is_bought && (
         <div className="mt-6 p-4 bg-gray-100 rounded-lg text-center">
-          This item has been purchased
+          This item has been purchased by:{' '}
+          <Link 
+            href={`/profile/${product.buyerId}`}
+            className="text-blue-500 hover:text-blue-700"
+          >
+            {userData?.displayName || product.buyerEmail}
+          </Link>
         </div>
       )}
 
