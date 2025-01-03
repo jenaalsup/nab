@@ -5,7 +5,7 @@ import Link from 'next/link'
 const Navbar = () => (
   <nav className="fixed w-full bg-white/80 backdrop-blur-sm z-50 border-b border-gray-100">
     <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-      <Link href="/" className="text-2xl font-bold">nab</Link>
+      <Link href="/" className="text-2xl font-bold"><img src="./nab.svg" alt="nab" className="w-[80px] h-auto" /></Link>
       <div className="flex gap-6 items-center">
         <Link href="/signup" className="px-4 py-2 border border-black rounded-lg hover:bg-gray-800">
           Sign up
@@ -40,8 +40,10 @@ const Testimonial = ({ quote, name, school }: {
 )
 
 const Testimonials = () => (
-  <section className="container mx-auto px-4 py-32 bg-[#fafafa]">
-    <h2 className="text-3xl md:text-4xl font-bold text-center mb-24 tracking-tight">
+  <section className="container mx-auto px-4 py-16 md:py-36 bg-[#fafafa]">
+            <img src="./bunnycat.png" alt="hero" className="w-[80px] h-auto m-auto pb-8" />
+
+    <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 tracking-tight">
       what students say
     </h2>
     <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto">
@@ -72,8 +74,11 @@ const Testimonials = () => (
 )
 
 const Steps = () => (
-  <section className="container mx-auto px-36 my-20 py-20 bg-[#ffffff] border border-gray-100 rounded-lg">
-    <h2 className="text-3xl md:text-4xl font-bold text-center mb-24 tracking-tight">how it works</h2>
+  <section className="container mx-auto px-24 my-16 py-20 bg-[#ffffff] border border-gray-100 rounded-lg">
+    <img src="./apple.png" alt="hero" className="w-[10%] h-auto m-auto pb-8" />
+
+    
+    <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 tracking-tight">how it works</h2>
     <div className="max-w-3xl mx-auto space-y-6">
       {[
         {
@@ -124,7 +129,7 @@ export default function Home() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-36 pb-36">
+      <section className="container mx-auto px-4 pt-36 pb-10">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -135,7 +140,7 @@ export default function Home() {
             🎉 now live at nyu, harvard, and caltech
           </div>
 
-          <h1 className="text-5xl md:text-6xl font-bold mb-8 text-black tracking-tight leading-loose">
+          <h1 className="text-4xl md:text-5xl font-bold mb-8 text-black tracking-tight">
             get that bag <br></br> (and the couch, and the toaster too)          </h1>
           
           <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto ">
@@ -158,7 +163,7 @@ export default function Home() {
 
         </motion.div>
 
-        <img src="./couch.png" alt="hero" className="w-[55%] h-auto m-auto" />
+        <img src="./couch.png" alt="hero" className="w-[55%] h-auto m-auto pt-6" />
 
       </section>
 
@@ -172,8 +177,10 @@ export default function Home() {
       </section>
       
       {/* Features Section */}
-      <section className="py-32">
+      <section className="py-16">
         <div className="container mx-auto px-4">
+        <img src="./cup2.png" alt="hero" className="w-[80px] h-auto m-auto pb-8" />
+
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-24 tracking-tight">
             why students love nab
           </h2>
@@ -206,7 +213,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="p-6 rounded-lg bg-white"
+                className="p-6 rounded-lg bg-white border"
               >
                 <div className="text-4xl mb-4">{feature.icon}</div>
                 <h3 className="text-xl font-bold mb-3 text-black tracking-tight">{feature.title}</h3>
@@ -220,7 +227,7 @@ export default function Home() {
       <Testimonials />
 
       {/* Final CTA Section */}
-      <section className="container mx-auto px-4  max-w-5xl my-20 py-24 bg-[#ffffff] border border-gray-100 rounded-lg">
+      <section className="container mx-auto px-4  max-w-5xl my-20 py-16 bg-[#ffffff] border border-gray-100 rounded-lg">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -244,8 +251,7 @@ export default function Home() {
                          transition-all duration-300
                        "
             >
-              get early access
-            </motion.button>
+start nabbing            </motion.button>
           </Link>
         </motion.div>
       </section>
