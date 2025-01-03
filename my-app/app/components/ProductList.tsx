@@ -71,11 +71,12 @@ export default function ProductList() {
   return (
     <div className="relative w-full">
       <div className="mb-6 px-4">
+        <div className="max-w-[900px] mx-auto">
         <Select
           isMulti
           name="communities"
           options={availableCommunities}
-          className="w-full max-w-md mx-auto"
+          className="inline-flex flex-row align-left"
           value={availableCommunities.filter(option => 
             selectedCommunities.includes(option.value)
           )}
@@ -88,6 +89,7 @@ export default function ProductList() {
           }}
           placeholder="Filter by community..."
         />
+        </div>
       </div>
       <div 
         ref={containerRef}
