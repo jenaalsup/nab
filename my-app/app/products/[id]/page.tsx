@@ -9,6 +9,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import type { Product } from '../../../types/product';
 import Navbar from '../../components/Navbar';
 import { User } from '../../../types/user';
+import Link from 'next/link';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -178,9 +179,12 @@ export default function ProductPage() {
       <p className="text-sm text-gray-500 mt-2">
         Minimum Price: ${(product.minimumPrice || 0).toFixed(2)}
       </p>
-      <p className="text-sm text-gray-500 mt-2">
+      <Link 
+        href={`/profile/${product.sellerId}`} 
+        className="text-sm text-gray-500 hover:text-gray-700 mt-2"
+      >
         Posted by: {product.sellerEmail}
-      </p>
+      </Link>
       {product && currentUser && (
         <div className="mt-6 space-y-4">
           {product.sellerId === currentUser.uid ? (
