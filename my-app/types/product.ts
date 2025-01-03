@@ -14,4 +14,5 @@ export interface Product {
   is_bought: boolean; 
   buyerId?: string;
   buyerEmail?: string;
+  timezone?: string;
 }

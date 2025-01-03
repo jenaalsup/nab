@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation';
 import { Product } from '../../types/product';
 import { calculateCurrentPrice } from '../../utils/priceCalculator';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { formatTimeLeft } from '@/utils/timeFormatter';
 
 interface ProductCardProps {
   product: Product;
@@ -24,9 +24,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       Date.now()
     )
   );
-
-  const daysLeft = Math.ceil((product.endDate - Date.now()) / (1000 * 60 * 60 * 24));
   const [sellerName, setSellerName] = useState<string>("");
+  const [timeLeft, setTimeLeft] = useState(formatTimeLeft(product.endDate));
 
   useEffect(() => {
     const updatePrice = async () => {
@@ -64,6 +63,15 @@ export default function ProductCard({ product }: ProductCardProps) {
     fetchSellerName();
   }, [db, product.sellerId, product.sellerEmail]);
 
+  useEffect(() => {
+    // Update time left every minute
+    const interval = setInterval(() => {
+      setTimeLeft(formatTimeLeft(product.endDate));
+    }, 60000); // every minute
+
+    return () => clearInterval(interval);
+  }, [product.endDate]);
+
   const handleCardClick = () => {
     router.push(`/products/${product.id}`); 
   };
@@ -92,7 +100,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </p>
       </div>
       <p className="text-sm text-gray-500">
-        {daysLeft > 0 ? `${daysLeft} days left` : 'Listing ended'}
+        {timeLeft}
       </p>
       <p className="text-sm text-gray-500 mt-2">
         Posted by: {sellerName || product.sellerEmail}

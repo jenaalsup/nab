@@ -10,6 +10,7 @@ import type { Product } from '../../../types/product';
 import Navbar from '../../components/Navbar';
 import { User } from '../../../types/user';
 import Link from 'next/link';
+import { formatTimeLeft } from '@/utils/timeFormatter';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -21,7 +22,8 @@ export default function ProductPage() {
   const [purchaseStatus, setPurchaseStatus] = useState('');
   const [userData, setUserData] = useState<User | null>(null);
   const [sellerData, setSellerData] = useState<User | null>(null);
-  
+  const [timeLeft, setTimeLeft] = useState('');
+
   useEffect(() => {
     if (!id) {
       setError('Invalid product ID.');
@@ -77,6 +79,17 @@ export default function ProductPage() {
 
     fetchSellerData();
   }, [db, product?.sellerId]);
+
+  useEffect(() => {
+    if (product) {
+      setTimeLeft(formatTimeLeft(product.endDate));
+      const interval = setInterval(() => {
+        setTimeLeft(formatTimeLeft(product.endDate));
+      }, 60000);
+
+      return () => clearInterval(interval);
+    }
+  }, [product]);
 
   if (error) return <p className="text-red-500">{error}</p>;
   if (!product) return <p>Loading...</p>;
@@ -216,6 +229,9 @@ export default function ProductPage() {
       </p>
       <p className="text-sm text-gray-500 mt-2">
         Minimum Price: ${(product.minimumPrice || 0).toFixed(2)}
+      </p>
+      <p className="text-sm font-medium mt-2 text-blue-500">
+        {timeLeft}
       </p>
       <Link 
         href={`/profile/${product.sellerId}`} 

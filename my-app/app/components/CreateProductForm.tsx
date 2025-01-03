@@ -24,6 +24,7 @@ export default function CreateProductForm() {
   const searchParams = useSearchParams();
   const isEditing = searchParams.get('edit') === 'true';
   const productId = searchParams.get('productId');
+  const [timezone, setTimezone] = useState('America/Los_Angeles');
 
   const availableCommunities = [
     { value: 'Caltech', label: 'Caltech' },
@@ -56,11 +57,14 @@ export default function CreateProductForm() {
             return;
           }
           
+          const date = new Date(productData.endDate);
+          const localDate = date.toLocaleString('en-US', { timeZone: productData.timezone || 'America/New_York' });
+          setEndDate(new Date(localDate).toISOString().slice(0, 16));
+          setTimezone(productData.timezone || 'America/Los_Angeles');
           setTitle(productData.title);
           setDescription(productData.description);
           setCurrentPrice(productData.currentPrice.toString());
           setMinimumPrice(productData.minimumPrice.toString());
-          setEndDate(new Date(productData.endDate).toISOString().split('T')[0]);
           setCommunities(productData.communities || []);
           setImagePreview(productData.imageUrl);
         }
@@ -109,9 +113,11 @@ export default function CreateProductForm() {
       return;
     }
   
-    const endDateTime = new Date(endDate).getTime();
-    if (endDateTime <= Date.now()) {
-      setStatus('End date must be in the future');
+    const endDateTime = new Date(endDate).toLocaleString('en-US', { timeZone: timezone });
+    const endTimestamp = new Date(endDateTime).getTime();
+  
+    if (endTimestamp <= Date.now()) {
+      setStatus('End date and time must be in the future');
       return;
     }
   
@@ -143,7 +149,8 @@ export default function CreateProductForm() {
         listedPrice: parseFloat(currentPrice),
         currentPrice: parseFloat(currentPrice),
         minimumPrice: parseFloat(minimumPrice),
-        endDate: endDateTime,
+        endDate: endTimestamp,
+        timezone: timezone,
         imageUrl,
         communities,
         updatedAt: Date.now(),
@@ -238,15 +245,35 @@ export default function CreateProductForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">End Date</label>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            min={new Date().toISOString().split('T')[0]}
-            className="w-full p-3 border rounded-lg text-black"
-            required
-          />
+          <label className="block text-sm font-medium mb-2">End Date and Time</label>
+          <div className="flex gap-4">
+            <input
+              type="date"
+              value={endDate.split('T')[0]}
+              onChange={(e) => setEndDate(prev => `${e.target.value}T${prev.split('T')[1] || '23:59'}`)}
+              min={new Date().toISOString().split('T')[0]}
+              className="w-full p-3 border rounded-lg text-black"
+              required
+            />
+            <input
+              type="time"
+              value={endDate.split('T')[1] || '23:59'}
+              onChange={(e) => setEndDate(prev => `${prev.split('T')[0]}T${e.target.value}`)}
+              className="w-full p-3 border rounded-lg text-black"
+              required
+            />
+            <select
+              value={timezone}
+              onChange={(e) => setTimezone(e.target.value)}
+              className="w-full p-3 border rounded-lg text-black"
+              required
+            >
+              <option value="America/New_York">Eastern Time</option>
+              <option value="America/Chicago">Central Time</option>
+              <option value="America/Denver">Mountain Time</option>
+              <option value="America/Los_Angeles">Pacific Time</option>
+            </select>
+          </div>
         </div>
         
         <div>
