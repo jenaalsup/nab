@@ -83,40 +83,60 @@ export default function ProductPage() {
 
   const handlePurchase = async () => {
     if (!product || !currentUser) return;
-
+  
     try {
       // Don't allow purchase of already bought items
       if (product.is_bought) {
         setPurchaseStatus('This item has already been purchased.');
         return;
       }
-
+  
       // Don't allow sellers to purchase their own items
       if (product.sellerId === currentUser.uid) {
         setPurchaseStatus('You cannot purchase your own item.');
         return;
       }
-
-      const productRef = doc(db, 'products', id as string);
-      await updateDoc(productRef, {
-        is_bought: true,
-        buyerId: currentUser.uid,
-        buyerEmail: currentUser.email
-      });
-
-      if (userData?.wishlistedProducts?.includes(id as string)) {
-        const userRef = doc(db, 'users', currentUser.uid);
-        await updateDoc(userRef, {
-          wishlistedProducts: userData.wishlistedProducts.filter(pid => pid !== id)
+  
+      // Create email content
+      const emailSubject = encodeURIComponent(`Nab Purchase Request: ${product.title}`);
+      const emailBody = encodeURIComponent(
+        `Hey there! 👋\n\n` +
+        `I'd love to nab your "${product.title}" for $${product.currentPrice}! ✨\n\n` +
+        `Let me know when works to meet up and make this happen!\n\n` +
+        `Best,\n${currentUser.displayName} 🤝`
+      );
+      
+      // Show confirmation dialog
+      const confirmed = window.confirm(
+        'Send an email to the seller to complete your purchase. Click OK to open your email client.'
+      );
+  
+      if (confirmed) {
+        // Open email client
+        window.location.href = `mailto:${product.sellerEmail}?subject=${emailSubject}&body=${emailBody}`;
+  
+        // Mark as purchased
+        const productRef = doc(db, 'products', id as string);
+        await updateDoc(productRef, {
+          is_bought: true,
+          buyerId: currentUser.uid,
+          buyerEmail: currentUser.email
         });
+  
+        if (userData?.wishlistedProducts?.includes(id as string)) {
+          const userRef = doc(db, 'users', currentUser.uid);
+          await updateDoc(userRef, {
+            wishlistedProducts: userData.wishlistedProducts.filter(pid => pid !== id)
+          });
+        }
+  
+        setProduct({
+          ...product,
+          is_bought: true
+        });
+  
+        setPurchaseStatus('Item reserved and taken off the market - please complete sending the email to coordinate with the seller.');
       }
-
-      setProduct({
-        ...product,
-        is_bought: true
-      });
-
-      setPurchaseStatus('Purchase successful! The seller will contact you soon.');
     } catch (err) {
       console.error('Failed to purchase product:', err);
       setPurchaseStatus('Failed to complete purchase. Please try again.');
