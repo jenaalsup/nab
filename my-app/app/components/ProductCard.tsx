@@ -6,7 +6,7 @@ import { Product } from '../../types/product';
 import { calculateCurrentPrice } from '../../utils/priceCalculator';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { formatTimeLeft } from '@/utils/timeFormatter';
+import { formatTimeLeft, handleExpiredProduct } from '@/utils/timeFormatter';
 
 interface ProductCardProps {
   product: Product;
@@ -29,6 +29,9 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   useEffect(() => {
     const updatePrice = async () => {
+      const isExpired = await handleExpiredProduct(product, db);
+      if (isExpired) return;
+
       const newPrice = calculateCurrentPrice(
         product.listedPrice,
         product.minimumPrice,
@@ -51,8 +54,8 @@ export default function ProductCard({ product }: ProductCardProps) {
     updatePrice();
     const interval = setInterval(updatePrice, 300000); // update every 5 minutes
     return () => clearInterval(interval);
-  }, [product.id, product.listedPrice, product.minimumPrice, product.createdAt, product.endDate, db]);
-
+  }, [product.id, product.listedPrice, product.minimumPrice, product.createdAt, product.endDate, db, product]);
+  
   useEffect(() => {
     const fetchSellerName = async () => {
       const userDoc = await getDoc(doc(db, 'users', product.sellerId));

@@ -190,6 +190,11 @@ export default function CreateProductForm() {
     }
   };
 
+  const today = new Date();
+  const tzOffset = new Date().toLocaleString('en-US', { timeZone: timezone }).split(',')[0];
+  const minDate = new Date(tzOffset).toISOString().split('T')[0];
+  
+
   return (
     <div className="w-full">
       <form onSubmit={handleSubmit} className="space-y-6">

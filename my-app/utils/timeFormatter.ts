@@ -1,3 +1,7 @@
+import { Product } from "@/types/product";
+import { doc, updateDoc } from "firebase/firestore";
+import { Firestore } from 'firebase/firestore';
+
 export function formatTimeLeft(endTimestamp: number): string {
   const now = Date.now();
   const timeLeft = endTimestamp - now;
@@ -20,4 +24,17 @@ export function formatTimeLeft(endTimestamp: number): string {
     return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} left`;
   }
   return 'Less than a minute left';
+}
+
+export async function handleExpiredProduct(product: Product, db: Firestore) {
+  if (!product.is_bought && Date.now() >= product.endDate) {
+  const productRef = doc(db, 'products', product.id);
+  await updateDoc(productRef, {
+    is_bought: true,
+    buyerId: 'expired',
+    buyerEmail: 'Listing Expired'
+  });
+  return true;
+}
+return false;
 }

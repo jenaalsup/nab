@@ -28,8 +28,13 @@ export default function ProductList() {
         id: doc.id,
         ...doc.data()
       })) as Product[];
-      setProducts(productList);
-      setFilteredProducts(productList);
+
+      const activeProducts = productList.filter(product => 
+        !product.is_bought && product.endDate > Date.now()
+      );
+
+      setProducts(activeProducts);
+      setFilteredProducts(activeProducts);
     });
 
     return () => unsubscribe();
