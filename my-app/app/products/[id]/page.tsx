@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useFirebase } from '../../../contexts/FirebaseContext';
-import { doc, getDoc, updateDoc, deleteDoc, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteDoc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
 import type { Product } from '../../../types/product';
@@ -51,16 +51,22 @@ export default function ProductPage() {
 
 
   useEffect(() => {
-    if (!currentUser) return;
-  
-    const userRef = doc(db, 'users', currentUser.uid);
-    const unsubscribe = onSnapshot(userRef, (doc) => {
-      if (doc.exists()) {
-        setUserData(doc.data() as User);
+    const fetchUserData = async () => {
+      if (!currentUser) return;
+      
+      try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          setUserData(userDoc.data() as User);
+        }
+      } catch (err) {
+        console.error('Error fetching user data:', err);
       }
-    });
+    };
   
-    return () => unsubscribe();
+    fetchUserData();
+    const interval = setInterval(fetchUserData, 60000);
+    return () => clearInterval(interval);
   }, [currentUser, db]);
 
   useEffect(() => {

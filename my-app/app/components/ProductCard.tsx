@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Product } from '../../types/product';
 import { calculateCurrentPrice } from '../../utils/priceCalculator';
 import { useFirebase } from '../../contexts/FirebaseContext';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { formatTimeLeft, handleExpiredProduct } from '@/utils/timeFormatter';
 
 interface ProductCardProps {
@@ -26,11 +26,14 @@ export default function ProductCard({ product }: ProductCardProps) {
   );
   const [sellerName, setSellerName] = useState<string>("");
   const [timeLeft, setTimeLeft] = useState(formatTimeLeft(product.endDate));
-
+  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  
   useEffect(() => {
     const updatePrice = async () => {
-      const isExpired = await handleExpiredProduct(product, db);
-      if (isExpired) return;
+      const timeUntilExpiration = product.endDate - Date.now();
+      if (timeUntilExpiration <= TWENTY_FOUR_HOURS) {
+        await handleExpiredProduct(product, db);
+      }
 
       const newPrice = calculateCurrentPrice(
         product.listedPrice,
@@ -39,23 +42,23 @@ export default function ProductCard({ product }: ProductCardProps) {
         product.endDate,
         Date.now()
       );
-
-      try {
-        const productRef = doc(db, 'products', product.id);
-        await updateDoc(productRef, {
-          currentPrice: newPrice
-        });
-        setCurrentPrice(newPrice);
-      } catch (error) {
-        console.error('Error updating price:', error);
-      }
+      
+      setCurrentPrice(newPrice);
     };
 
     updatePrice();
     const interval = setInterval(updatePrice, 300000); // update every 5 minutes
     return () => clearInterval(interval);
-  }, [product.id, product.listedPrice, product.minimumPrice, product.createdAt, product.endDate, db, product]);
-  
+  }, [
+    product.id, 
+    product.listedPrice, 
+    product.minimumPrice, 
+    product.createdAt, 
+    product.endDate,
+    product, // Add back product
+    db // Add back db
+  ]);
+
   useEffect(() => {
     const fetchSellerName = async () => {
       const userDoc = await getDoc(doc(db, 'users', product.sellerId));

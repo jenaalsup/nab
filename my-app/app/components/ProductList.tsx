@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useFirebase } from '../../contexts/FirebaseContext';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import ProductCard from './ProductCard';
 import type { Product } from '../../types/product';
 import Select from 'react-select';
@@ -21,23 +21,25 @@ export default function ProductList() {
   ];
 
   useEffect(() => {
-    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
-    
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const fetchProducts = async () => {
+      const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+      const snapshot = await getDocs(q);
       const productList = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Product[];
-
+  
       const activeProducts = productList.filter(product => 
         !product.is_bought && product.endDate > Date.now()
       );
-
+  
       setProducts(activeProducts);
       setFilteredProducts(activeProducts);
-    });
-
-    return () => unsubscribe();
+    };
+  
+    fetchProducts();
+    const interval = setInterval(fetchProducts, 60000); // Refresh every minute
+    return () => clearInterval(interval);
   }, [db]);
 
   useEffect(() => {

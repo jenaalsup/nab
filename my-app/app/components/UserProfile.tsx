@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFirebase } from '../../contexts/FirebaseContext';
-import { doc, getDoc, collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import type { User } from '@/types/user';
 import { useRouter } from 'next/navigation';
 import ProductCard from './ProductCard';
@@ -55,75 +55,79 @@ const UserProfile = ({ userId = null }: { userId?: string | null }) => {
 
   // fetch user products
   useEffect(() => {
-    if (!targetUserId) return;
-  
-    const q = query(
-      collection(db, 'products'),
-      where('sellerId', '==', targetUserId),
-      orderBy('createdAt', 'desc')
-    );
-  
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const fetchUserProducts = async () => {
+      if (!targetUserId) return;
+      
+      const q = query(
+        collection(db, 'products'),
+        where('sellerId', '==', targetUserId),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const snapshot = await getDocs(q);
       const products = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Product[];
       setUserProducts(products);
-    });
+    };
   
-    return () => unsubscribe();
+    fetchUserProducts();
+    const interval = setInterval(fetchUserProducts, 60000);
+    return () => clearInterval(interval);
   }, [db, targetUserId]);
 
   // fetch purchased products
   useEffect(() => {
-    if (!currentUser) return;
-  
-    const q = query(
-      collection(db, 'products'),
-      where('buyerId', '==', currentUser.uid),
-      orderBy('createdAt', 'desc')
-    );
-  
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const fetchPurchasedProducts = async () => {
+      if (!currentUser) return;
+      
+      const q = query(
+        collection(db, 'products'),
+        where('buyerId', '==', currentUser.uid),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const snapshot = await getDocs(q);
       const products = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Product[];
       setPurchasedProducts(products);
-    });
+    };
   
-    return () => unsubscribe();
+    fetchPurchasedProducts();
+    const interval = setInterval(fetchPurchasedProducts, 60000);
+    return () => clearInterval(interval);
   }, [currentUser, db]);
 
   useEffect(() => {
-    if (!currentUser || !userData?.wishlistedProducts?.length) {
-      setWishlistProducts([]);
-      return;
-    }
+    const fetchWishlist = async () => {
+      if (!currentUser || !userData?.wishlistedProducts?.length) {
+        setWishlistProducts([]);
+        return;
+      }
   
-    const fetchWishlistedProducts = async () => {
       try {
-        const productsRef = collection(db, 'products');
         const q = query(
-          productsRef,
+          collection(db, 'products'),
           where('__name__', 'in', userData.wishlistedProducts)
         );
         
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-          const products = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          })) as Product[];
-          setWishlistProducts(products);
-        });
-  
-        return () => unsubscribe();
+        const snapshot = await getDocs(q);
+        const products = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Product[];
+        setWishlistProducts(products);
       } catch (error) {
         console.error('Error fetching wishlist:', error);
       }
     };
   
-    fetchWishlistedProducts();
+    fetchWishlist();
+    const interval = setInterval(fetchWishlist, 60000);
+    return () => clearInterval(interval);
   }, [currentUser, userData?.wishlistedProducts, db]);
 
   if (!currentUser) {
