@@ -6,7 +6,7 @@ import { Product } from '../../types/product';
 import { calculateCurrentPrice } from '../../utils/priceCalculator';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, getDoc } from 'firebase/firestore';
-import { formatTimeLeft, handleExpiredProduct } from '@/utils/timeFormatter';
+import { formatTimeLeft } from '@/utils/timeFormatter';
 
 interface ProductCardProps {
   product: Product;
@@ -26,14 +26,14 @@ export default function ProductCard({ product }: ProductCardProps) {
   );
   const [sellerName, setSellerName] = useState<string>("");
   const [timeLeft, setTimeLeft] = useState(formatTimeLeft(product.endDate));
-  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-  
+  //const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
   useEffect(() => {
     const updatePrice = async () => {
-      const timeUntilExpiration = product.endDate - Date.now();
+      /*const timeUntilExpiration = product.endDate - Date.now();
       if (timeUntilExpiration <= TWENTY_FOUR_HOURS) {
         await handleExpiredProduct(product, db);
-      }
+      }*/
 
       const newPrice = calculateCurrentPrice(
         product.listedPrice,
@@ -73,7 +73,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     // Update time left every minute
     const interval = setInterval(() => {
       setTimeLeft(formatTimeLeft(product.endDate));
-    }, 60000); // every minute
+    }, 120000); // every 2 minutes
 
     return () => clearInterval(interval);
   }, [product.endDate]);

@@ -1,6 +1,3 @@
-import { Product } from "@/types/product";
-import { collection, getDocs, query, where, writeBatch } from "firebase/firestore";
-import { Firestore } from 'firebase/firestore';
 
 export function formatTimeLeft(endTimestamp: number): string {
   const now = Date.now();
@@ -25,6 +22,11 @@ export function formatTimeLeft(endTimestamp: number): string {
   }
   return 'Less than a minute left';
 }
+
+/*
+import { Product } from "@/types/product";
+import { collection, getDocs, query, where, writeBatch } from "firebase/firestore";
+import { Firestore } from 'firebase/firestore';
 
 // Add at top of file
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
@@ -69,4 +71,4 @@ export async function handleExpiredProduct(product: Product, db: Firestore) {
     console.error('Error batch updating expired products:', error);
     return false;
   }
-}
+}*/

@@ -38,7 +38,7 @@ export default function ProductList() {
     };
   
     fetchProducts();
-    const interval = setInterval(fetchProducts, 60000); // Refresh every minute
+    const interval = setInterval(fetchProducts, 120000); // 2 minutes
     return () => clearInterval(interval);
   }, [db]);
 

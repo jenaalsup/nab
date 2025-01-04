@@ -65,7 +65,7 @@ export default function ProductPage() {
     };
   
     fetchUserData();
-    const interval = setInterval(fetchUserData, 60000);
+    const interval = setInterval(fetchUserData, 120000); // 2 minutes
     return () => clearInterval(interval);
   }, [currentUser, db]);
 
@@ -91,7 +91,7 @@ export default function ProductPage() {
       setTimeLeft(formatTimeLeft(product.endDate));
       const interval = setInterval(() => {
         setTimeLeft(formatTimeLeft(product.endDate));
-      }, 60000);
+      }, 120000); // 2 minutes
 
       return () => clearInterval(interval);
     }

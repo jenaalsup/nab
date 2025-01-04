@@ -73,7 +73,7 @@ const UserProfile = ({ userId = null }: { userId?: string | null }) => {
     };
   
     fetchUserProducts();
-    const interval = setInterval(fetchUserProducts, 60000);
+    const interval = setInterval(fetchUserProducts, 120000); // 2 minutes
     return () => clearInterval(interval);
   }, [db, targetUserId]);
 
@@ -97,7 +97,7 @@ const UserProfile = ({ userId = null }: { userId?: string | null }) => {
     };
   
     fetchPurchasedProducts();
-    const interval = setInterval(fetchPurchasedProducts, 60000);
+    const interval = setInterval(fetchPurchasedProducts, 120000); // 2 minutes
     return () => clearInterval(interval);
   }, [currentUser, db]);
 
@@ -126,7 +126,7 @@ const UserProfile = ({ userId = null }: { userId?: string | null }) => {
     };
   
     fetchWishlist();
-    const interval = setInterval(fetchWishlist, 60000);
+    const interval = setInterval(fetchWishlist, 120000); // 2 minutes
     return () => clearInterval(interval);
   }, [currentUser, userData?.wishlistedProducts, db]);
 
