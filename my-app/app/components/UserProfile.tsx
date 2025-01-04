@@ -229,7 +229,7 @@ const UserProfile = ({ userId = null }: { userId?: string | null }) => {
 </div>
 
   {isOwnProfile && (
-    <div className="mt-4 flex flex-col md:flex-row items-center gap-4">
+    <div className="mt-4 flex flex-col md:flex-row items-center justify-center gap-4">
       <button
         onClick={handleEditProfile}
         className="px-4 text-sm py-2 border border-gray-300 rounded hover:bg-gray-200"
