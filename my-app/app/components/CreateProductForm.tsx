@@ -191,9 +191,8 @@ export default function CreateProductForm() {
   };
 
   const today = new Date();
-  const tzOffset = new Date().toLocaleString('en-US', { timeZone: timezone }).split(',')[0];
-  const minDate = new Date(tzOffset).toISOString().split('T')[0];
-  
+  const tzDate = new Date(today.toLocaleString('en-US', { timeZone: timezone }));
+  const minDate = tzDate.toISOString().split('T')[0];
 
   return (
     <div className="w-full">
@@ -256,7 +255,7 @@ export default function CreateProductForm() {
               type="date"
               value={endDate.split('T')[0]}
               onChange={(e) => setEndDate(prev => `${e.target.value}T${prev.split('T')[1] || '23:59'}`)}
-              min={new Date().toISOString().split('T')[0]}
+              min={minDate}
               className="w-full p-3 border rounded-lg text-black"
               required
             />
