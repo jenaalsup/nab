@@ -160,7 +160,7 @@ const UserProfile = ({ userId = null }: { userId?: string | null }) => {
   return (
   <div className="w-full max-w-4xl mx-auto p-4">
     {/* Profile Header */}
-    <div className="flex flex-col items-center mb-8">
+    <div className="flex flex-col items-center mb-4">
       {/* Profile Picture */}
       <img
         src={userData?.photoURL || currentUser?.photoURL || "/images/profile.png"}
@@ -172,13 +172,13 @@ const UserProfile = ({ userId = null }: { userId?: string | null }) => {
       <h1 className="text-xl md:text-2xl font-bold mt-4 text-center">
         {userData?.displayName || currentUser.displayName}
       </h1>
-      <p className="text-gray-600 text-sm md:text-base">
+      <p className="text-gray-600 mt-2 text-md md:text-base">
         {userData?.email || currentUser.email}
       </p>
 
       {/* Optional Bio */}
       {userData?.bio && (
-        <p className="mt-4 text-center max-w-lg text-gray-700 mb-6">
+        <p className="mt-4 text-center max-w-lg text-gray-700 mb-2">
           {userData.bio}
         </p>
 
@@ -186,7 +186,7 @@ const UserProfile = ({ userId = null }: { userId?: string | null }) => {
   </div>
 
 {/* Additional Info */}
-<div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2 mb-6 text-gray-800">
+<div className="flex flex-row items-center justify-center gap-2 mb-6 text-gray-800">
   {/* Location */}
   {userData?.location && (
     <div className="flex items-center gap-2">
@@ -229,7 +229,7 @@ const UserProfile = ({ userId = null }: { userId?: string | null }) => {
 </div>
 
   {isOwnProfile && (
-    <div className="mt-4 flex flex-col md:flex-row items-center justify-center gap-4">
+    <div className="mt-4 flex flex-row md:flex-row items-center justify-center mb-8 gap-4">
       <button
         onClick={handleEditProfile}
         className="px-4 text-sm py-2 border border-gray-300 rounded hover:bg-gray-200"
@@ -318,29 +318,7 @@ const UserProfile = ({ userId = null }: { userId?: string | null }) => {
         </div>
       )}
 
-      {activeTab === 'sold' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {soldListings.length > 0 ? (
-            soldListings.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          ) : (
-            <p className="text-gray-500 col-span-2 text-center mt-12">No sold items</p>
-          )}
-          
-          {/* Centered Add Listing Button - Only show for own profile */}
-          {isOwnProfile && (
-            <div className="col-span-full flex justify-center">
-              <Link
-                href="/create"
-                className="px-4 py-2 border text-sm border-gray-300 rounded hover:bg-gray-200"
-              >
-                Add Listing
-              </Link>
-            </div>
-          )}
-        </div>
-      )}
+
 
       {activeTab === 'sold' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

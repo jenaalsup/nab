@@ -75,7 +75,7 @@ export default function ProductList() {
 
   return (
     <div className="relative w-full">
-      <div className="mb-6 px-4">
+      <div className="mb-6 px-6">
         <div className="max-w-[900px] mx-auto">
         <Select
           isMulti

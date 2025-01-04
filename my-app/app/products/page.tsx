@@ -25,16 +25,16 @@ export default function Products() {
   return (
     <div>
 
-      <div className="max-w-[900px] m-auto max-h-screen px-4">
+      <div className="max-w-[900px] m-auto max-h-screen">
         <Navbar />
-        <div className="flex flex-row justify-between items-center py-6">
+        <div className="flex md:flex-row flex-col md:justify-between md:items-center items-left gap-6 py-6 px-6">
           <div className="flex flex-col">
           <h1 className="text-2xl font-bold mb-2">deals from your block</h1>
           <p className="text-gray-500">Prices drop dynamically every day! Check back in to nab the best deals.</p>
           </div>
 
           <Link href="/create">
-            <button className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-200">
+            <button className="px-4 py-2 border text-white bg-black rounded hover:bg-gray-800">
               Add Listing
             </button>
           </Link>
