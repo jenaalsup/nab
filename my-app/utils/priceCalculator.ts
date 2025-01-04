@@ -10,7 +10,10 @@ export function calculateCurrentPrice(
 
   const timeProgress = (currentTime - startDate) / (endDate - startDate);
   const priceRange = listedPrice - minimumPrice;  // Changed from initialPrice
-  const currentPrice = listedPrice - (priceRange * Math.pow(timeProgress, 2));  // Changed from initialPrice
+
+  // random factor that varies between 0.9 and 1.1 (±10%)
+  const randomFactor = 1 + ((Math.random() - 0.5) * 0.2);
+  const currentPrice = listedPrice - (priceRange * Math.pow(timeProgress * randomFactor, 2));
   
   return Math.max(Math.round(currentPrice * 100) / 100, minimumPrice);
 }
