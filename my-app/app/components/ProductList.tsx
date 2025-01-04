@@ -75,8 +75,8 @@ export default function ProductList() {
 
   return (
     <div className="relative w-full">
-      <div className="mb-6 px-6">
-        <div className="max-w-[900px] mx-auto">
+      <div className="mb-6">
+        <div className="max-w-[900px] px-6 md:px-6 mx-auto">
         <Select
           isMulti
           name="communities"
