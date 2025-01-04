@@ -17,3 +17,22 @@ export function calculateCurrentPrice(
   
   return Math.max(Math.round(currentPrice * 100) / 100, minimumPrice);
 }
+
+export function calculateHistoricalPrice(
+  listedPrice: number,
+  minimumPrice: number,
+  startDate: number,
+  endDate: number,
+  targetTime: number
+): number {
+  if (targetTime >= endDate) return minimumPrice;
+  if (targetTime <= startDate) return listedPrice;
+
+  const timeProgress = (targetTime - startDate) / (endDate - startDate);
+  const priceRange = listedPrice - minimumPrice;
+
+  // Use a deterministic calculation without random factor for historical prices
+  const historicalPrice = listedPrice - (priceRange * Math.pow(timeProgress, 2));
+  
+  return Math.max(Math.round(historicalPrice * 100) / 100, minimumPrice);
+}

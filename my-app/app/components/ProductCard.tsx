@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Product } from '../../types/product';
-import { calculateCurrentPrice } from '../../utils/priceCalculator';
+import { calculateCurrentPrice, calculateHistoricalPrice } from '../../utils/priceCalculator';
 import { useFirebase } from '../../contexts/FirebaseContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { formatTimeLeft } from '@/utils/timeFormatter';
@@ -26,37 +26,42 @@ export default function ProductCard({ product }: ProductCardProps) {
   );
   const [sellerName, setSellerName] = useState<string>("");
   const [timeLeft, setTimeLeft] = useState(formatTimeLeft(product.endDate));
+  const [lastPrice, setLastPrice] = useState<number | null>(null);
   //const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
   useEffect(() => {
     const updatePrice = async () => {
-      /*const timeUntilExpiration = product.endDate - Date.now();
-      if (timeUntilExpiration <= TWENTY_FOUR_HOURS) {
-        await handleExpiredProduct(product, db);
-      }*/
-
+      const now = Date.now();
+      const tenMinutesAgo = now - 600000; // 10 minutes in milliseconds
+      
       const newPrice = calculateCurrentPrice(
         product.listedPrice,
         product.minimumPrice,
         product.createdAt,
         product.endDate,
-        Date.now()
+        now
+      );
+
+      const historicalPrice = calculateHistoricalPrice(
+        product.listedPrice,
+        product.minimumPrice,
+        product.createdAt,
+        product.endDate,
+        tenMinutesAgo
       );
       
+      setLastPrice(historicalPrice);
       setCurrentPrice(newPrice);
     };
 
     updatePrice();
-    const interval = setInterval(updatePrice, 300000); // update every 5 minutes
+    const interval = setInterval(updatePrice, 600000); // update every 10 minutes
     return () => clearInterval(interval);
   }, [
-    product.id, 
-    product.listedPrice, 
-    product.minimumPrice, 
-    product.createdAt, 
-    product.endDate,
-    product, // Add back product
-    db // Add back db
+    product.listedPrice,
+    product.minimumPrice,
+    product.createdAt,
+    product.endDate
   ]);
 
   useEffect(() => {
@@ -94,18 +99,27 @@ export default function ProductCard({ product }: ProductCardProps) {
       />
       <h3 className="text-xl font-semibold">{product.title}</h3>
       <p className="text-gray-600 mt-2">{product.description}</p>
-      <div className="mt-2">
+      <div className="">
         <p className="text-lg font-bold">
           ${(currentPrice || 0).toFixed(2)}
         </p>
-        <p className="text-sm text-gray-500">
+        {lastPrice && (
+          <p className="text-md text-gray-500">
+            Last Price Change: {' '}
+            <span className={currentPrice - lastPrice > 0 ? 'text-green-800' : 'text-red-500'}>
+              {currentPrice - lastPrice > 0 ? '↑' : '↓'} 
+              ${Math.abs(currentPrice - lastPrice).toFixed(2)}
+            </span>
+          </p>
+        )}
+        {/* <p className="text-sm text-gray-500">
           Listed price: ${(product.listedPrice || 0).toFixed(2)}
         </p>
         <p className="text-sm text-gray-500">
           Minimum price: ${(product.minimumPrice || 0).toFixed(2)}
-        </p>
+        </p> */}
       </div>
-      <p className="text-sm text-gray-500">
+      <p className="text-md text-gray-500">
         {timeLeft}
       </p>
       <p className="text-sm text-gray-500 mt-2">
