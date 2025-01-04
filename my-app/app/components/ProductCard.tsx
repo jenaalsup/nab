@@ -73,7 +73,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     // Update time left every minute
     const interval = setInterval(() => {
       setTimeLeft(formatTimeLeft(product.endDate));
-    }, 120000); // every 2 minutes
+    }, 300000); // every 5 minutes
 
     return () => clearInterval(interval);
   }, [product.endDate]);
