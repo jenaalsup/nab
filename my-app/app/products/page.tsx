@@ -33,10 +33,11 @@ export default function Products() {
           <p className="text-gray-500">Prices drop dynamically every day! Check back in to nab the best deals.</p>
           </div>
 
-          <Link href="/create">
-            <button className="px-4 py-2 border text-white bg-black rounded hover:bg-gray-800">
-              Add Listing
-            </button>
+          <Link
+            href="/create"
+            className="px-4 py-2 border text-sm border-gray-300 rounded hover:bg-gray-200"
+          >
+            Add Listing
           </Link>
         </div>
       </div>

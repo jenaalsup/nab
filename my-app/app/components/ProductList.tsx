@@ -106,7 +106,7 @@ export default function ProductList() {
           isMulti
           name="communities"
           options={availableCommunities}
-          className="inline-flex flex-row align-left"
+          className="inline-flex flex-row align-left border text-sm border-gray-300 rounded hover:bg-gray-200 bg-gray-100"
           value={availableCommunities.filter(option => 
             selectedCommunities.includes(option.value)
           )}
