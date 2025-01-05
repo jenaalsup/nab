@@ -6,6 +6,8 @@ import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import ProductCard from './ProductCard';
 import type { Product } from '../../types/product';
 import Select from 'react-select';
+import { User } from '@/types/user';
+import Link from 'next/link';
 
 export default function ProductList() {
   const { db } = useFirebase();
@@ -13,6 +15,7 @@ export default function ProductList() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedCommunities, setSelectedCommunities] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [users, setUsers] = useState<User[]>([]);
 
   const availableCommunities = [
     { value: 'Caltech', label: 'Caltech' },
@@ -75,10 +78,30 @@ export default function ProductList() {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const usersSnapshot = await getDocs(collection(db, 'users'));
+      const usersData = usersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as User[];
+      setUsers(usersData);
+    };
+  
+    fetchUsers();
+  }, [db]);
+
+  const filteredUsers = users.filter(user => {
+    if (selectedCommunities.length === 0) return true;
+    return user.communities?.some(community => 
+      selectedCommunities.includes(community)
+    );
+  });
+
   return (
     <div className="relative w-full">
       <div className="mb-6">
-        <div className="max-w-[900px] px-6 md:px-6 mx-auto">
+        <div className="max-w-[900px] px-6 md:px-6 mx-auto flex items-center">
         <Select
           isMulti
           name="communities"
@@ -96,6 +119,17 @@ export default function ProductList() {
           }}
           placeholder="Filter by community..."
         />
+        <div className="flex gap-2 overflow-x-auto ml-8"> 
+          {filteredUsers.map((user) => (
+            <Link href={`/profile/${user.id}`} key={user.id}>
+              <img
+                src={user.photoURL || "/images/profile.png"}
+                alt={user.displayName || "User"}
+                className="w-8 h-8 rounded-full hover:ring-2 hover:ring-blue-500 transition-all"
+              />
+            </Link>
+          ))}
+        </div>
         </div>
       </div>
       <div 
